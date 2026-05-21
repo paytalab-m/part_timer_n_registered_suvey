@@ -168,7 +168,15 @@ body{
   background:var(--yellow-15);border-radius:var(--rs);padding:14px 16px;
   margin-bottom:20px;font-size:14px;color:var(--brown);font-weight:600;text-align:center;
 }
-.info-code .code-val{font-size:18px;font-weight:800;letter-spacing:0.05em;margin-left:6px}
+.info-code-name{
+  font-size:13px;color:var(--brown-80);font-weight:600;
+  margin-bottom:6px;line-height:1.5;word-break:keep-all;
+}
+.info-code-row{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:14px;color:var(--brown);font-weight:700;
+}
+.info-code .code-val{font-size:18px;font-weight:800;letter-spacing:0.05em}
 .info-steps{margin:0;padding-left:20px}
 .info-steps li{margin-bottom:4px;font-size:14px;line-height:1.7}
 
@@ -401,7 +409,7 @@ body{
 // ═══════════════════════════════════════════════
 //  설정 - Apps Script URL 여기에 붙여넣기
 // ═══════════════════════════════════════════════
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypcEb-H1VYEbKb33dwchxMk-oM71mv0Gom_7QJZcXccYVa_dFlELVHOlwFFVQwqFIe/exec';  // ← 배포 후 URL 붙여넣기
+const APPS_SCRIPT_URL = '';  // ← 배포 후 URL 붙여넣기
 
 // ═══════════════════════════════════════════════
 //  세션 & URL 파라미터
@@ -490,7 +498,7 @@ const PAGES = {
           <li>본인 참여코드 입력</li>
         </ol>
       </div>
-      <div class="info-code">{{store}} {{nickname}}님 참여코드:<span class="code-val">{{code}}</span></div>
+      <div class="info-code"><div class="info-code-name">{{store}} {{nickname}}님</div><div class="info-code-row">참여코드<span class="code-val">{{code}}</span></div></div>
     `,
     options: [
       { label: '네, 지금 등록 가능해요', next: 'END' },
@@ -537,7 +545,7 @@ const PAGES = {
         </ol>
       </div>
       <div class="info-img-placeholder">[참여자 등록 방법 안내 이미지]</div>
-      <div class="info-code">{{store}} {{nickname}}님 참여코드:<span class="code-val">{{code}}</span></div>
+      <div class="info-code"><div class="info-code-name">{{store}} {{nickname}}님</div><div class="info-code-row">참여코드<span class="code-val">{{code}}</span></div></div>
     `,
     options: [
       { label: '네, 지금 등록 가능해요', next: 'END' },
@@ -559,7 +567,7 @@ const PAGES = {
       <div class="info-block">
         또한 카카오톡 <strong>'패스오더 알바 지원팀'</strong> 채널에서 1:1 문의 > <strong>'참여코드 확인하기'</strong>를 누르시면 다시 확인 가능해요.
       </div>
-      <div class="info-code">{{store}} {{nickname}}님 참여코드:<span class="code-val">{{code}}</span></div>
+      <div class="info-code"><div class="info-code-name">{{store}} {{nickname}}님</div><div class="info-code-row">참여코드<span class="code-val">{{code}}</span></div></div>
     `,
     options: [
       { label: '예, 확인했어요', next: '3-2' },
@@ -585,7 +593,7 @@ const PAGES = {
         유효하지 않은 참여코드 입력 시, 타 매장 참여코드 입력 시 뜨는 오류입니다.<br>
         본인의 참여코드가 맞는지 다시 한 번 확인해 주세요.
       </div>
-      <div class="info-code">{{store}} {{nickname}}님 참여코드:<span class="code-val">{{code}}</span></div>
+      <div class="info-code"><div class="info-code-name">{{store}} {{nickname}}님</div><div class="info-code-row">참여코드<span class="code-val">{{code}}</span></div></div>
     `,
     options: [
       { label: '다시 시도해볼게요', next: 'END' },
@@ -1000,10 +1008,8 @@ function showEnd() {
   document.getElementById('nav').style.display = 'none';
   document.getElementById('prog').style.width = '100%';
 
-  // 고객센터 안내 조건부 표시
-  if (needsCS) {
-    document.getElementById('cs-notice').classList.add('show');
-  }
+  // 모든 종료 화면에서 고객센터 안내 항상 표시
+  document.getElementById('cs-notice').classList.add('show');
 
   saveData('_SESSION_END', new Date().toISOString());
   window.scrollTo({top: 0, behavior: 'smooth'});
