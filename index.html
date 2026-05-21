@@ -164,6 +164,10 @@ body{
   background:var(--brown-06);border-radius:var(--rs);padding:32px;text-align:center;
   margin-bottom:16px;font-size:12px;color:var(--brown-40);font-weight:600;border:1.5px dashed var(--brown-10);
 }
+.info-img{
+  max-width:100%;border-radius:var(--rs);display:block;
+  margin:0 auto 16px;
+}
 .info-code{
   background:var(--yellow-15);border-radius:var(--rs);padding:14px 16px;
   margin-bottom:20px;font-size:14px;color:var(--brown);font-weight:600;text-align:center;
@@ -409,7 +413,7 @@ body{
 // ═══════════════════════════════════════════════
 //  설정 - Apps Script URL 여기에 붙여넣기
 // ═══════════════════════════════════════════════
-const APPS_SCRIPT_URL = '';  // ← 배포 후 URL 붙여넣기
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypcEb-H1VYEbKb33dwchxMk-oM71mv0Gom_7QJZcXccYVa_dFlELVHOlwFFVQwqFIe/exec';  // ← 배포 후 URL 붙여넣기
 
 // ═══════════════════════════════════════════════
 //  세션 & URL 파라미터
@@ -476,7 +480,7 @@ const PAGES = {
     qid: 'Q3-1', type: 'radio',
     text: '신청 후 받으신 카카오톡 가이드 메시지를 확인하셨나요?',
     info: `
-      <div class="info-img-placeholder">[가이드 메시지 캡처 이미지]</div>
+      <img src="images/guide-message.png" alt="가이드 메시지" class="info-img">
     `,
     options: [
       { label: '예, 확인했어요', next: '3-1-1' },
@@ -487,7 +491,7 @@ const PAGES = {
     qid: 'Q3-1-1', type: 'radio',
     text: '지금 참여자 등록을 할 수 있는 상황이신가요?',
     info: `
-      <div class="info-img-placeholder">[가이드 메시지 캡처 이미지]</div>
+      <img src="images/guide-message.png" alt="가이드 메시지" class="info-img">
       <div class="info-block">메시지의 <strong>'활동 가이드 확인하기'</strong> 버튼을 클릭하시면 참여자 등록 안내 페이지를 보실 수 있어요.</div>
       <div class="info-block">
         참여자 등록 방법은 아래 절차를 따라주시면 돼요.
@@ -498,6 +502,7 @@ const PAGES = {
           <li>본인 참여코드 입력</li>
         </ol>
       </div>
+      <img src="images/register-steps.png" alt="참여자 등록 방법" class="info-img">
       <div class="info-code"><div class="info-code-name">{{store}} {{nickname}}님</div><div class="info-code-row">참여코드<span class="code-val">{{code}}</span></div></div>
     `,
     options: [
@@ -511,7 +516,7 @@ const PAGES = {
     qid: 'Q3-1-2', type: 'radio',
     text: '신청 후 나오는 신청 완료 페이지에서 \'활동 가이드 확인하기\' 버튼을 클릭하셨나요?',
     info: `
-      <div class="info-img-placeholder">[신청 완료 페이지 캡처 이미지 - '활동 가이드 확인하기' 버튼 강조]</div>
+      <img src="images/signup-complete.png" alt="신청 완료 페이지" class="info-img">
     `,
     options: [
       { label: '예, 클릭했어요', next: '3-1-1' },
@@ -544,7 +549,7 @@ const PAGES = {
           <li>본인 참여코드 입력</li>
         </ol>
       </div>
-      <div class="info-img-placeholder">[참여자 등록 방법 안내 이미지]</div>
+      <img src="images/register-steps.png" alt="참여자 등록 방법" class="info-img">
       <div class="info-code"><div class="info-code-name">{{store}} {{nickname}}님</div><div class="info-code-row">참여코드<span class="code-val">{{code}}</span></div></div>
     `,
     options: [
@@ -563,7 +568,7 @@ const PAGES = {
       <div class="info-block">
         참여코드는 신청 직후 받으신 카카오톡 가이드 메시지 내 <strong>'활동 가이드 확인하기'</strong> 버튼을 클릭하시면 보이는 가이드 웹 안에 있어요.
       </div>
-      <div class="info-img-placeholder">[가이드 웹 캡처 이미지 - 참여코드 위치 강조]</div>
+      <img src="images/guide-web-code.png" alt="참여코드 위치" class="info-img">
       <div class="info-block">
         또한 카카오톡 <strong>'패스오더 알바 지원팀'</strong> 채널에서 1:1 문의 > <strong>'참여코드 확인하기'</strong>를 누르시면 다시 확인 가능해요.
       </div>
