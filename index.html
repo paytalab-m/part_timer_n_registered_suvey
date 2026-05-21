@@ -237,11 +237,39 @@ body{
 
 /* Datetime */
 .dt-input{
-  width:100%;padding:16px;border:1.5px solid var(--brown-06);border-radius:var(--rs);
-  font-family:'Pretendard Variable',sans-serif;font-size:15px;outline:none;
-  transition:all .2s ease;background:var(--brown-03);color:var(--brown);
+  width:100%;
+  min-height:56px;
+  padding:16px;
+  border:1.5px solid var(--brown-06);
+  border-radius:var(--rs);
+  font-family:'Pretendard Variable',sans-serif;
+  font-size:16px; /* iOS 자동 줌 방지 (16px 미만이면 줌인 발생) */
+  outline:none;
+  transition:all .2s ease;
+  background:var(--brown-03);
+  color:var(--brown);
+  -webkit-appearance:none;
+  appearance:none;
+  display:block;
+  box-sizing:border-box;
+  font-weight:500;
+  line-height:1.4;
 }
 .dt-input:focus{border-color:var(--yellow);background:var(--card);box-shadow:0 0 0 3px var(--yellow-25)}
+/* iOS Safari에서 datetime-local 내부 텍스트 정렬 */
+.dt-input::-webkit-date-and-time-value{
+  text-align:left;
+  font-size:16px;
+  min-height:1.4em;
+}
+/* 빈 input일 때 보조 안내 (datetime은 placeholder 안 먹어서 별도 hint로 처리) */
+.dt-hint{
+  font-size:12px;
+  color:var(--brown-40);
+  margin-top:8px;
+  text-align:center;
+  font-weight:500;
+}
 
 /* Validation */
 .val-msg{
@@ -804,7 +832,12 @@ function renderPage(pageId) {
   } else if (page.type === 'freetext') {
     h += `<textarea class="free-ta" id="${pageId}_t" placeholder="자유롭게 적어주세요..." oninput="onChg('${pageId}')"></textarea>`;
   } else if (page.type === 'datetime') {
-    h += `<input type="datetime-local" id="${pageId}_dt" class="dt-input" oninput="onChg('${pageId}')">`;
+    // 현재 시간을 로컬 타임존 기준 ISO 형식으로 (min 속성용 - 과거 못 선택)
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    const minDt = now.toISOString().slice(0, 16);
+    h += `<input type="datetime-local" id="${pageId}_dt" class="dt-input" min="${minDt}" oninput="onChg('${pageId}')">`;
+    h += `<div class="dt-hint">📅 위를 눌러서 날짜와 시간을 선택해주세요</div>`;
   } else if (page.type === 'info') {
     // 정보만 표시 (별도 입력 X)
   }
