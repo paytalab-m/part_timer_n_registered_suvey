@@ -236,6 +236,7 @@ body{
 .free-ta:focus{border-color:var(--yellow);background:var(--card);box-shadow:0 0 0 3px var(--yellow-25)}
 
 /* Datetime */
+.dt-wrapper{position:relative;width:100%}
 .dt-input{
   width:100%;
   min-height:56px;
@@ -243,7 +244,7 @@ body{
   border:1.5px solid var(--brown-06);
   border-radius:var(--rs);
   font-family:'Pretendard Variable',sans-serif;
-  font-size:16px; /* iOS 자동 줌 방지 (16px 미만이면 줌인 발생) */
+  font-size:16px; /* iOS 자동 줌 방지 */
   outline:none;
   transition:all .2s ease;
   background:var(--brown-03);
@@ -254,15 +255,34 @@ body{
   box-sizing:border-box;
   font-weight:500;
   line-height:1.4;
+  position:relative;
+  z-index:2;
 }
 .dt-input:focus{border-color:var(--yellow);background:var(--card);box-shadow:0 0 0 3px var(--yellow-25)}
-/* iOS Safari에서 datetime-local 내부 텍스트 정렬 */
-.dt-input::-webkit-date-and-time-value{
-  text-align:left;
-  font-size:16px;
-  min-height:1.4em;
+/* 값이 없을 때 native datetime 텍스트 숨김 (우리 placeholder가 대신 보임) */
+.dt-input:not(.has-value){
+  color:transparent;
+  -webkit-text-fill-color:transparent;
 }
-/* 빈 input일 때 보조 안내 (datetime은 placeholder 안 먹어서 별도 hint로 처리) */
+.dt-input.has-value{
+  color:var(--brown);
+  -webkit-text-fill-color:var(--brown);
+}
+/* 우리 만든 회색 placeholder */
+.dt-placeholder{
+  position:absolute;
+  top:50%;
+  left:18px;
+  transform:translateY(-50%);
+  pointer-events:none;
+  color:var(--brown-40);
+  font-size:16px;
+  font-weight:500;
+  letter-spacing:0.02em;
+  z-index:1;
+}
+.dt-input.has-value ~ .dt-placeholder{display:none}
+/* 안내 텍스트 */
 .dt-hint{
   font-size:12px;
   color:var(--brown-40);
@@ -790,6 +810,13 @@ function toggleInfo() {
   if (arrow) arrow.classList.toggle('open');
 }
 
+// datetime input - 값 입력 시 has-value 클래스 토글
+function onDtChg(el, pageId) {
+  if (el.value) el.classList.add('has-value');
+  else el.classList.remove('has-value');
+  onChg(pageId);
+}
+
 // ═══════════════════════════════════════════════
 //  렌더링
 // ═══════════════════════════════════════════════
@@ -836,7 +863,19 @@ function renderPage(pageId) {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     const minDt = now.toISOString().slice(0, 16);
-    h += `<input type="datetime-local" id="${pageId}_dt" class="dt-input" min="${minDt}" oninput="onChg('${pageId}')">`;
+
+    // placeholder용 예시 (다음 날 오후 2시)
+    const example = new Date();
+    example.setDate(example.getDate() + 1);
+    const yyyy = example.getFullYear();
+    const mm = String(example.getMonth() + 1).padStart(2, '0');
+    const dd = String(example.getDate()).padStart(2, '0');
+    const placeholderTxt = `${yyyy}-${mm}-${dd}  14:00`;
+
+    h += `<div class="dt-wrapper">`;
+    h += `<input type="datetime-local" id="${pageId}_dt" class="dt-input" min="${minDt}" oninput="onDtChg(this, '${pageId}')">`;
+    h += `<div class="dt-placeholder">${placeholderTxt}</div>`;
+    h += `</div>`;
     h += `<div class="dt-hint">📅 위를 눌러서 날짜와 시간을 선택해주세요</div>`;
   } else if (page.type === 'info') {
     // 정보만 표시 (별도 입력 X)
@@ -877,7 +916,10 @@ function restoreAns(pageId) {
     if (t) t.value = a;
   } else if (page.type === 'datetime') {
     const dt = document.getElementById(pageId + '_dt');
-    if (dt) dt.value = a;
+    if (dt) {
+      dt.value = a;
+      if (a) dt.classList.add('has-value');
+    }
   }
 }
 
