@@ -3,1064 +3,763 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>시급 2배 챌린지 — 참여자 등록 설문</title>
+<title>시급 2배 챌린지 — 설문</title>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <style>
-:root {
-  --yellow: #FCD20B;
-  --yellow-10: rgba(252,210,11,0.10);
-  --yellow-15: rgba(252,210,11,0.15);
-  --yellow-25: rgba(252,210,11,0.25);
-  --yellow-50: rgba(252,210,11,0.50);
-  --brown: #452614;
-  --brown-80: rgba(69,38,20,0.80);
-  --brown-60: rgba(69,38,20,0.60);
-  --brown-40: rgba(69,38,20,0.40);
-  --brown-20: rgba(69,38,20,0.20);
-  --brown-10: rgba(69,38,20,0.10);
-  --brown-06: rgba(69,38,20,0.06);
-  --brown-04: rgba(69,38,20,0.04);
-  --brown-03: rgba(69,38,20,0.03);
-  --bg: #F7F6F3;
-  --card: #FFFFFF;
-  --error: #E53935;
-  --error-bg: rgba(229,57,53,0.06);
-  --success: #2E7D32;
-  --success-bg: rgba(46,125,50,0.06);
-  --r: 16px;
-  --rs: 12px;
+:root{
+  --yellow:#FCD20B;--yellow-10:rgba(252,210,11,.10);--yellow-15:rgba(252,210,11,.15);
+  --yellow-25:rgba(252,210,11,.25);--yellow-50:rgba(252,210,11,.50);
+  --brown:#452614;--brown-80:rgba(69,38,20,.80);--brown-60:rgba(69,38,20,.60);
+  --brown-40:rgba(69,38,20,.40);--brown-20:rgba(69,38,20,.20);--brown-10:rgba(69,38,20,.10);
+  --brown-06:rgba(69,38,20,.06);--brown-04:rgba(69,38,20,.04);--brown-03:rgba(69,38,20,.03);
+  --bg:#F7F6F3;--card:#FFFFFF;--error:#E53935;--error-bg:rgba(229,57,53,.06);--r:16px;--rs:12px;
 }
-
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{font-size:16px}
-body{
-  font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,sans-serif;
-  background:var(--bg);color:var(--brown);min-height:100dvh;
-  -webkit-font-smoothing:antialiased;overscroll-behavior:none;
-}
-
-/* Progress */
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--brown);min-height:100dvh;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
 .prog-wrap{position:fixed;top:0;left:0;right:0;height:2px;background:var(--brown-06);z-index:100}
 .prog-fill{height:100%;background:var(--yellow);transition:width 1s cubic-bezier(.25,1,.5,1);width:0%}
-
-/* Layout */
+.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:center;min-height:52px;padding:14px 20px;background:var(--card);border-bottom:1px solid var(--brown-06)}
+.topbar h1{margin:0;font-size:15px;font-weight:700;color:var(--brown);letter-spacing:-.02em}
+.ver-toggle{position:fixed;top:60px;right:12px;z-index:60;display:none;gap:4px;background:var(--card);border:1px solid var(--brown-10);border-radius:999px;padding:4px;box-shadow:0 2px 8px rgba(69,38,20,.12)}
+.vt-btn{border:none;background:transparent;color:var(--brown-40);font-family:inherit;font-size:11px;font-weight:700;padding:6px 10px;border-radius:999px;cursor:pointer}
+.vt-btn.active{background:var(--brown);color:#fff}
 .wrap{max-width:440px;margin:0 auto;padding:24px 20px 140px;min-height:100dvh}
-
-/* Step */
 .step{display:none}
 .step.active{display:block;animation:fadeUp .4s cubic-bezier(.16,1,.3,1)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-
-/* Card */
-.card{
-  background:var(--card);border-radius:var(--r);padding:32px 24px;
-  box-shadow:0 1px 3px rgba(69,38,20,0.04),0 4px 16px rgba(69,38,20,0.02);
-  border:1px solid var(--brown-06);
-}
-
-/* Intro */
-.intro-tag{
-  display:inline-flex;align-items:center;gap:4px;
-  background:var(--yellow-15);color:var(--brown);
-  font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;margin-bottom:24px;
-}
-.intro-card{margin-top:0;text-align:center}
+.card{background:var(--card);border-radius:var(--r);padding:32px 24px;box-shadow:0 1px 3px rgba(69,38,20,.04),0 4px 16px rgba(69,38,20,.02);border:1px solid var(--brown-06)}
+/* Intro (미등록 전용) */
+#step-intro{text-align:center}
+.intro-tag{display:inline-flex;align-items:center;gap:4px;background:var(--yellow-15);color:var(--brown);font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;margin-bottom:24px}
+.intro-card{text-align:center}
 .intro-icon{font-size:36px;margin-bottom:20px;display:block}
-.intro-title{font-size:22px;font-weight:800;line-height:1.45;letter-spacing:-0.04em;margin-bottom:24px}
+.intro-title{font-size:22px;font-weight:800;line-height:1.45;letter-spacing:-.04em;margin-bottom:24px}
 .intro-title em{font-style:normal;color:var(--brown)}
-.intro-desc{
-  font-size:14px;color:var(--brown-80);line-height:1.7;
-  margin-bottom:10px;word-break:keep-all;
-  text-align:center !important;
-}
-.intro-desc:last-of-type{margin-bottom:50px}
+.intro-desc{font-size:14px;color:var(--brown-80);line-height:1.7;margin-bottom:10px;word-break:keep-all;text-align:left}
+.intro-desc:last-of-type{margin-bottom:28px}
 .intro-desc strong{color:var(--brown);font-weight:700}
-.intro-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:28px}
-.intro-grid-item{background:var(--brown-03);border-radius:var(--rs);padding:14px 16px;text-align:center;display:flex;justify-content:space-between;align-items:center}
-.intro-grid-label{font-size:12px;color:var(--brown-60);font-weight:600}
-.intro-grid-val{font-size:14px;font-weight:800;color:var(--brown)}
-
-/* 인트로 코드 박스 (개인화) */
-.intro-code-box{
-  display:inline-flex;align-items:center;gap:10px;
-  background:var(--yellow-15);border:1px solid var(--yellow-25);
-  border-radius:var(--rs);padding:12px 18px;margin:0 0 20px 0;
-}
-.intro-code-label{font-size:11px;color:var(--brown-60);font-weight:600;letter-spacing:.04em}
-.intro-code-val{font-size:16px;font-weight:800;color:var(--brown);letter-spacing:0.05em}
-
-/* 챌린지 구조 인포 박스 (토글) */
-.intro-info-box{
-  background:var(--brown-03);
-  border-radius:var(--rs);
-  margin:0 0 12px 0;
-  overflow:hidden;
-}
-.intro-info-toggle{
-  width:100%;
-  background:none;
-  border:none;
-  padding:14px 16px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  cursor:pointer;
-  font-family:inherit;
-  font-size:13px;
-  color:var(--brown-60);
-  font-weight:500;
-  text-align:left;
-}
-.intro-info-toggle:active{opacity:0.7}
-.toggle-arrow{
-  width:14px;height:14px;
-  transition:transform 0.3s ease;
-  color:var(--brown-40);
-  flex-shrink:0;
-}
-.toggle-arrow.open{
-  transform:rotate(90deg);
-}
-.intro-info-content{
-  max-height:0;
-  overflow:hidden;
-  transition:max-height 0.35s ease, padding 0.35s ease;
-  padding:0 16px;
-  font-size:12.5px;
-  color:var(--brown-60);
-  line-height:1.7;
-  word-break:keep-all;
-  text-align:left;
-  font-weight:400;
-}
-.intro-info-content.open{
-  max-height:240px;
-  padding:0 16px 14px 16px;
-}
-.intro-info-content em{
-  font-style:normal;color:var(--brown-60);font-size:12.5px;
-}
-
-/* 인트로 소요시간 — 버튼 아래 작게 */
+.intro-info-box{background:var(--brown-03);border-radius:var(--rs);margin:0 0 12px 0;overflow:hidden}
+.intro-info-toggle{width:100%;background:none;border:none;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:inherit;font-size:13px;color:var(--brown-60);font-weight:500;text-align:left}
+.toggle-arrow{width:14px;height:14px;transition:transform .3s ease;color:var(--brown-40);flex-shrink:0}
+.toggle-arrow.open{transform:rotate(90deg)}
+.intro-info-content{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease;padding:0 16px;font-size:12.5px;color:var(--brown-60);line-height:1.7;word-break:keep-all;text-align:left;font-weight:400}
+.intro-info-content.open{max-height:260px;padding:0 16px 14px 16px}
 .intro-time{font-size:12px;color:var(--brown-40);margin-top:14px;font-weight:500}
-
-/* 인트로 desc 좌측 정렬 */
-.intro-desc{text-align:left}
-.intro-desc strong{color:var(--brown);font-weight:700}
-
-/* Question */
+.btn-start{width:100%;padding:18px;font-size:16px;margin-top:12px;border-radius:var(--rs);background:var(--brown);color:#fff}
 .q-num{font-size:12px;font-weight:700;color:var(--brown-60);letter-spacing:.04em;margin-bottom:16px}
-.q-text{font-size:17px;font-weight:700;line-height:1.6;letter-spacing:-0.025em;word-break:keep-all;color:var(--brown)}
+.q-text{font-size:17px;font-weight:700;line-height:1.6;letter-spacing:-.025em;word-break:keep-all;color:var(--brown)}
 .q-hint{font-size:13px;color:var(--brown-60);margin-top:6px;font-weight:400}
 .q-gap{height:28px}
-
-/* Info content (안내 텍스트, 이미지 등) */
-.info-block{
-  background:var(--brown-03);border-radius:var(--rs);padding:16px;
-  margin-bottom:16px;font-size:14px;line-height:1.7;color:var(--brown);word-break:keep-all;
-}
+.info-block{background:var(--brown-03);border-radius:var(--rs);padding:16px;margin-bottom:16px;font-size:14px;line-height:1.7;color:var(--brown);word-break:keep-all}
 .info-block strong{font-weight:700}
-.info-img-placeholder{
-  background:var(--brown-06);border-radius:var(--rs);padding:32px;text-align:center;
-  margin-bottom:16px;font-size:12px;color:var(--brown-40);font-weight:600;border:1.5px dashed var(--brown-10);
-}
-.info-img{
-  max-width:100%;border-radius:var(--rs);display:block;
-  margin:0 auto 16px;
-}
-.info-code{
-  background:var(--yellow-15);border-radius:var(--rs);padding:14px 16px;
-  margin-bottom:20px;font-size:14px;color:var(--brown);font-weight:600;text-align:center;
-}
-.info-code-name{
-  font-size:13px;color:var(--brown-80);font-weight:600;
-  margin-bottom:6px;line-height:1.5;word-break:keep-all;
-}
-.info-code-row{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  font-size:14px;color:var(--brown);font-weight:700;
-}
-.info-code .code-val{font-size:18px;font-weight:800;letter-spacing:0.05em}
+.info-img{max-width:100%;border-radius:var(--rs);display:block;margin:0 auto 16px}
+.info-code{background:var(--yellow-15);border-radius:var(--rs);padding:14px 16px;margin-bottom:20px;font-size:14px;color:var(--brown);font-weight:600;text-align:center}
+.info-code-name{font-size:13px;color:var(--brown-80);font-weight:600;margin-bottom:6px;line-height:1.5;word-break:keep-all}
+.info-code-row{display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;color:var(--brown);font-weight:700}
+.info-code .code-val{font-size:18px;font-weight:800;letter-spacing:.05em}
 .info-steps{margin:0;padding-left:20px}
 .info-steps li{margin-bottom:4px;font-size:14px;line-height:1.7}
-
-/* Options */
+.tip-box{background:var(--yellow-15);border:1px solid var(--yellow-25);border-radius:var(--rs);padding:16px;margin-bottom:14px;font-size:14px;line-height:1.7;color:var(--brown);word-break:keep-all}
+.tip-box .tip-head{font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.tip-box strong{font-weight:800}
+.tip-box-list{margin:0;padding:0;list-style:none}
+.tip-box-list li{display:flex;gap:8px;margin-bottom:10px;font-size:14px;line-height:1.6}
+.tip-box-list li:last-child{margin-bottom:0}
+.tip-box-num{flex-shrink:0;font-weight:800;color:var(--brown)}
+.inline-tip{display:none;margin-top:18px;padding-top:18px;border-top:1px dashed rgba(69,38,20,.15)}
+.inline-tip.show{display:block;animation:inlineFade .25s ease}
+.inline-tip-head{font-weight:800;font-size:15px;margin-bottom:10px;color:var(--brown);word-break:keep-all}
+@keyframes inlineFade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 .opts{display:flex;flex-direction:column;gap:10px}
 .opt{position:relative;cursor:pointer}
 .opt input{position:absolute;opacity:0;pointer-events:none}
-.opt-label{
-  display:flex;align-items:flex-start;gap:14px;padding:18px 16px;
-  border:1.5px solid var(--brown-06);border-radius:var(--rs);
-  font-size:15px;font-weight:400;line-height:1.5;color:var(--brown);
-  transition:all .2s ease;word-break:keep-all;user-select:none;-webkit-user-select:none;
-  background:var(--card);
-}
+.opt-label{display:flex;align-items:flex-start;gap:14px;padding:18px 16px;border:1.5px solid var(--brown-06);border-radius:var(--rs);font-size:15px;font-weight:400;line-height:1.5;color:var(--brown);transition:all .2s ease;word-break:keep-all;user-select:none;-webkit-user-select:none;background:var(--card)}
 .opt-label:active{transform:scale(.985)}
-.opt input:checked+.opt-label{
-  border-color:var(--yellow);background:var(--yellow-10);
-  color:var(--brown);font-weight:600;
-  box-shadow:0 0 0 1px var(--yellow-50);
-}
-.ind{
-  flex-shrink:0;width:22px;height:22px;border-radius:50%;
-  border:1.5px solid var(--brown-10);background:var(--brown-03);
-  display:flex;align-items:center;justify-content:center;transition:all .2s ease;margin-top:1px;
-}
-.opt input:checked+.opt-label .ind{
-  border-color:var(--yellow);background:var(--yellow);
-  box-shadow:0 1px 4px rgba(252,210,11,0.3);
-}
+.opt input:checked+.opt-label{border-color:var(--yellow);background:var(--yellow-10);color:var(--brown);font-weight:600;box-shadow:0 0 0 1px var(--yellow-50)}
+.ind{flex-shrink:0;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--brown-10);background:var(--brown-03);display:flex;align-items:center;justify-content:center;transition:all .2s ease;margin-top:1px}
+.opt input:checked+.opt-label .ind{border-color:var(--yellow);background:var(--yellow);box-shadow:0 1px 4px rgba(252,210,11,.3)}
 .opt input:checked+.opt-label .ind::after{content:'';display:block;width:8px;height:8px;border-radius:50%;background:var(--brown)}
 .opt-content{flex:1}
 .opt-main{font-size:15px;line-height:1.5}
 .opt-preview{font-size:12px;color:var(--brown-60);margin-top:6px;line-height:1.5;font-weight:400}
-
-/* Etc text */
 .etc-wrap{display:none;margin-top:8px;animation:fadeUp .25s ease}
 .etc-wrap.show{display:block}
-.etc-ta{
-  width:100%;padding:14px 16px;border:1.5px solid var(--brown-06);border-radius:var(--rs);
-  font-family:'Pretendard Variable',sans-serif;font-size:14px;resize:none;outline:none;
-  transition:all .2s ease;min-height:76px;background:var(--brown-03);color:var(--brown);line-height:1.6;
-}
-.etc-ta::placeholder{color:var(--brown-20)}
-.etc-ta:focus{border-color:var(--yellow);background:var(--card);box-shadow:0 0 0 3px var(--yellow-25)}
-
-/* Free text */
-.free-ta{
-  width:100%;padding:16px;border:1.5px solid var(--brown-06);border-radius:var(--rs);
-  font-family:'Pretendard Variable',sans-serif;font-size:15px;resize:none;outline:none;
-  transition:all .2s ease;min-height:140px;line-height:1.7;background:var(--brown-03);color:var(--brown);
-}
-.free-ta::placeholder{color:var(--brown-20)}
-.free-ta:focus{border-color:var(--yellow);background:var(--card);box-shadow:0 0 0 3px var(--yellow-25)}
-
-/* Datetime */
+.etc-ta,.free-ta{width:100%;padding:14px 16px;border:1.5px solid var(--brown-06);border-radius:var(--rs);font-family:'Pretendard Variable',sans-serif;font-size:14px;resize:none;outline:none;transition:all .2s ease;min-height:76px;background:var(--brown-03);color:var(--brown);line-height:1.6}
+.free-ta{font-size:15px;min-height:140px}
+.etc-ta::placeholder,.free-ta::placeholder{color:var(--brown-20)}
+.etc-ta:focus,.free-ta:focus{border-color:var(--yellow);background:var(--card);box-shadow:0 0 0 3px var(--yellow-25)}
 .dt-wrapper{position:relative;width:100%}
-.dt-input{
-  width:100%;
-  min-height:56px;
-  padding:16px;
-  border:1.5px solid var(--brown-06);
-  border-radius:var(--rs);
-  font-family:'Pretendard Variable',sans-serif;
-  font-size:16px; /* iOS 자동 줌 방지 */
-  outline:none;
-  transition:all .2s ease;
-  background:var(--brown-03);
-  color:var(--brown);
-  -webkit-appearance:none;
-  appearance:none;
-  display:block;
-  box-sizing:border-box;
-  font-weight:500;
-  line-height:1.4;
-  position:relative;
-  z-index:2;
-}
+.dt-input{width:100%;min-height:56px;padding:16px;border:1.5px solid var(--brown-06);border-radius:var(--rs);font-family:'Pretendard Variable',sans-serif;font-size:16px;outline:none;transition:all .2s ease;background:var(--brown-03);color:var(--brown);-webkit-appearance:none;appearance:none;display:block;box-sizing:border-box;font-weight:500;line-height:1.4;position:relative;z-index:2}
 .dt-input:focus{border-color:var(--yellow);background:var(--card);box-shadow:0 0 0 3px var(--yellow-25)}
-/* 값이 없을 때 native datetime 텍스트 숨김 (우리 placeholder가 대신 보임) */
-.dt-input:not(.has-value){
-  color:transparent;
-  -webkit-text-fill-color:transparent;
-}
-.dt-input.has-value{
-  color:var(--brown);
-  -webkit-text-fill-color:var(--brown);
-}
-/* 우리 만든 회색 placeholder */
-.dt-placeholder{
-  position:absolute;
-  top:50%;
-  left:18px;
-  transform:translateY(-50%);
-  pointer-events:none;
-  color:var(--brown-40);
-  font-size:16px;
-  font-weight:500;
-  letter-spacing:0.02em;
-  z-index:1;
-}
+.dt-input:not(.has-value){color:transparent;-webkit-text-fill-color:transparent}
+.dt-input.has-value{color:var(--brown);-webkit-text-fill-color:var(--brown)}
+.dt-placeholder{position:absolute;top:50%;left:18px;transform:translateY(-50%);pointer-events:none;color:var(--brown-40);font-size:16px;font-weight:500;letter-spacing:.02em;z-index:1}
 .dt-input.has-value ~ .dt-placeholder{display:none}
-/* 안내 텍스트 */
-.dt-hint{
-  font-size:12px;
-  color:var(--brown-40);
-  margin-top:8px;
-  text-align:center;
-  font-weight:500;
-}
-
-/* Validation */
-.val-msg{
-  display:none;align-items:center;gap:6px;margin-top:20px;padding:12px 14px;
-  background:var(--error-bg);border-radius:10px;font-size:13px;color:var(--error);font-weight:600;
-  animation:shake .35s ease;
-}
+.dt-hint{font-size:12px;color:var(--brown-40);margin-top:8px;text-align:center;font-weight:500}
+.addr-row{display:flex;gap:8px;margin-bottom:10px}
+.addr-zip{flex:1;min-height:50px;padding:14px 16px;border:1.5px solid var(--brown-06);border-radius:var(--rs);background:var(--brown-03);color:var(--brown);font-size:15px;font-weight:600;font-family:inherit}
+.addr-input{width:100%;min-height:50px;padding:14px 16px;border:1.5px solid var(--brown-06);border-radius:var(--rs);background:var(--brown-03);color:var(--brown);font-size:15px;font-family:inherit;outline:none;margin-bottom:10px}
+.addr-input:focus{border-color:var(--yellow);background:var(--card);box-shadow:0 0 0 3px var(--yellow-25)}
+.btn-search{flex-shrink:0;padding:0 18px;border:none;border-radius:var(--rs);background:var(--brown);color:#fff;font-weight:700;font-size:14px;font-family:inherit;cursor:pointer}
+.btn-search:active{transform:scale(.97)}
+.val-msg{display:none;align-items:center;gap:6px;margin-top:20px;padding:12px 14px;background:var(--error-bg);border-radius:10px;font-size:13px;color:var(--error);font-weight:600;animation:shake .35s ease}
 .val-msg.show{display:flex}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}60%{transform:translateX(5px)}}
-
-/* Nav */
-.nav{
-  position:fixed;bottom:0;left:0;right:0;
-  background:rgba(247,246,243,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border-top:1px solid var(--brown-06);
-  padding:14px 20px;padding-bottom:calc(32px + env(safe-area-inset-bottom));
-  z-index:50;display:none;
-}
+.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(247,246,243,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--brown-06);padding:14px 20px;padding-bottom:calc(32px + env(safe-area-inset-bottom));z-index:50;display:none}
 .nav-inner{max-width:440px;margin:0 auto;display:flex;gap:10px;align-items:center}
 .nav-spacer{flex:1}
-
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  padding:14px 26px;border-radius:var(--rs);
-  font-family:'Pretendard Variable',sans-serif;font-size:15px;font-weight:700;
-  border:none;cursor:pointer;transition:all .2s ease;white-space:nowrap;
-}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:14px 26px;border-radius:var(--rs);font-family:'Pretendard Variable',sans-serif;font-size:15px;font-weight:700;border:none;cursor:pointer;transition:all .2s ease;white-space:nowrap}
 .btn:active{transform:scale(.97)}
-.btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
 .btn svg{width:18px;height:18px;flex-shrink:0}
-.btn-primary{background:var(--brown);color:#FFFFFF}
-.btn-primary:hover:not(:disabled){background:var(--brown-80)}
+.btn-primary{background:var(--brown);color:#fff}
 .btn-ghost{background:transparent;color:var(--brown-40)}
-.btn-ghost:hover{background:var(--brown-04)}
-.btn-start{
-  width:100%;padding:18px;font-size:16px;margin-top:12px;border-radius:var(--rs);
-  background:var(--brown);color:#fff;
-}
-.btn-start:hover{background:var(--brown-80)}
-
-/* End */
-.end-card{text-align:center;padding:52px 24px;margin-top:40px}
+.end-card{text-align:center;padding:52px 24px}
 .end-icon{font-size:52px;margin-bottom:20px;display:block}
-.end-title{font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-0.03em}
+.end-title{font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-.03em}
 .end-desc{font-size:14px;color:var(--brown-80);line-height:1.8}
-
-/* CS 안내 (조건부) */
-.cs-notice{
-  display:none;
-  margin-top:28px;
-  padding:20px;
-  border-radius:var(--rs);
-  background:var(--yellow-10);
-  text-align:center;
-}
+.kakao-card{margin-top:28px;padding:22px 20px;border-radius:var(--rs);background:var(--yellow-10);border:1px solid var(--yellow-25);text-align:center}
+.kakao-card-title{font-size:15px;font-weight:800;color:var(--brown);margin-bottom:8px;letter-spacing:-.02em;word-break:keep-all}
+.kakao-card-desc{font-size:13px;color:var(--brown-80);line-height:1.7;margin-bottom:16px;word-break:keep-all}
+.kakao-card-desc strong{font-weight:700;color:var(--brown)}
+.kakao-btn-wrap{display:flex;justify-content:center}
+.cs-notice{display:none;margin-top:14px;padding:18px;border-radius:var(--rs);background:var(--brown-04);text-align:center}
 .cs-notice.show{display:block}
-.cs-notice-title{
-  font-size:14px;font-weight:800;color:var(--brown);
-  margin-bottom:8px;
-}
-.cs-notice-desc{
-  font-size:13px;color:var(--brown-80);line-height:1.7;
-  margin-bottom:14px;word-break:keep-all;
-}
-.cs-notice-link{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:11px 18px;background:var(--brown);color:#fff;
-  border-radius:10px;font-size:13px;font-weight:700;
-  text-decoration:none;transition:all .2s ease;
-}
-.cs-notice-link:hover{background:var(--brown-80)}
-.cs-notice-link:active{transform:scale(.97)}
-.cs-notice-link svg{width:14px;height:14px}
-
-/* Error */
-.err-card{text-align:center;padding:52px 24px;margin-top:40px}
-.err-icon{font-size:52px;margin-bottom:20px;display:block}
-.err-title{font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-0.03em}
-.err-desc{font-size:14px;color:var(--brown-80);line-height:1.8}
+.cs-notice-title{font-size:13px;font-weight:700;color:var(--brown-60);margin-bottom:6px}
+.cs-notice-desc{font-size:12.5px;color:var(--brown-40);line-height:1.6;margin-bottom:12px;word-break:keep-all}
+.cs-notice-link{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;background:var(--brown-10);color:var(--brown-80);border-radius:10px;font-size:12.5px;font-weight:700;text-decoration:none}
+.cs-notice-link svg{width:13px;height:13px}
 </style>
 </head>
 <body>
-
 <div class="prog-wrap"><div class="prog-fill" id="prog"></div></div>
-
+<header class="topbar"><h1>시급 2배 챌린지</h1></header>
+<div class="ver-toggle" id="verToggle">
+  <button class="vt-btn" data-v="u" onclick="loadVersion('u')">미등록</button>
+  <button class="vt-btn active" data-v="a" onclick="loadVersion('a')">미시작A</button>
+  <button class="vt-btn" data-v="b" onclick="loadVersion('b')">미시작B</button>
+</div>
 <div class="wrap">
-
-  <!-- ERROR -->
-  <div class="step" id="step-err">
-    <div class="card err-card">
-      <span class="err-icon">⚠️</span>
-      <h2 class="err-title">잘못된 접근이에요</h2>
-      <p class="err-desc">설문 링크가 올바르지 않아요.<br>알림톡에 첨부된 링크로 다시 접속해 주세요.</p>
-    </div>
-  </div>
-
-  <!-- INTRO -->
-  <div class="step" id="step-intro" style="text-align:center">
-    <div class="intro-tag">⚡ 시급 2배 챌린지</div>
-    <div class="card intro-card">
-      <span class="intro-icon">💌</span>
-      <h1 class="intro-title">어떤 어려움이<br><em>있으셨는지 알려주세요</em></h1>
-
-      <p class="intro-desc">
-        이 설문은 신청 후 아직 참여자 등록을<br>완료하지 않은 분들 대상으로 진행돼요.
-      </p>
-      <p class="intro-desc">
-        등록 과정에서 어떤 어려움이 있으셨는지 알려주시면,<br>그에 맞춰 <strong>즉시 해결 방법</strong>을 안내드릴게요! 🛠️
-      </p>
-
-      <!-- 챌린지 구조 인포 박스 (토글) -->
-      <div class="intro-info-box">
-        <button class="intro-info-toggle" onclick="toggleInfo()" type="button">
-          <span>💡 참여자 등록이 왜 필요한가요?</span>
-          <svg class="toggle-arrow" id="toggleArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M9 18l6-6-6-6"/>
-          </svg>
-        </button>
-        <div class="intro-info-content" id="infoContent">
-          신청 후 받으신 '참여코드'를 매장 POS 내 패스오더 점주용 프로그램에 입력해야 본인 명의 쿠폰을 출력해서 리워드를 받을 수 있어요. 🤫 <em>실제 참여자들은 월 평균 102,500원 정도 받아요.</em>
-        </div>
-      </div>
-
-      <button class="btn btn-start" onclick="startSurvey()">
-        👉 이유 선택하고 바로 해결하기
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </button>
-      <p class="intro-time">⏱️ 약 1분 (매우 짧아요!)</p>
-    </div>
-  </div>
-
-  <!-- QUESTIONS -->
+  <div class="step" id="step-intro"></div>
   <div id="qWrap"></div>
-
-  <!-- END -->
-  <div class="step" id="step-end">
-    <div class="card end-card">
-      <span class="end-icon">🎉</span>
-      <h2 class="end-title">설문이 완료되었어요!</h2>
-      <p class="end-desc">소중한 시간 내어 답변해 주셔서 감사합니다.</p>
-
-      <!-- 고객센터 안내 (조건부) -->
-      <div class="cs-notice" id="cs-notice">
-        <div class="cs-notice-title">📞 더 자세한 도움이 필요하신가요?</div>
-        <div class="cs-notice-desc">
-          이해가 어렵거나 다른 질문이 있으시면<br>
-          고객센터로 문의해주세요.
-        </div>
-        <a href="https://passorder.kr/template/ptev_survey_customer_center" class="cs-notice-link" target="_blank" rel="noopener">
-          1:1 문의하기
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
+  <div class="step" id="step-end"><div class="card end-card">
+    <span class="end-icon">🎉</span>
+    <h2 class="end-title">제출이 완료되었어요!</h2>
+    <p class="end-desc">소중한 시간 내어 답변해 주셔서 감사합니다.</p>
+    <div class="kakao-card">
+      <div class="kakao-card-title">[패스오더 알바지원팀] 채널을 꼭 추가해주세요!</div>
+      <div class="kakao-card-desc">영수증 쿠폰 출력 방법, 리워드 안내, 리마인드 메시지는 <strong>카카오톡 채널을 추가하셔야 받을 수 있어요.</strong></div>
+      <div class="kakao-btn-wrap">
+        <div id="kakao-talk-channel-add-button" data-channel-public-id="_XWxdxhX" data-size="large" data-support-multiple-densities="true"></div>
       </div>
     </div>
-  </div>
-
+    <div class="cs-notice" id="cs-notice">
+      <div class="cs-notice-title">더 자세한 도움이 필요하신가요?</div>
+      <div class="cs-notice-desc">다른 질문이 있으시면 고객센터로 문의해주세요.</div>
+      <a href="https://passorder.kr/template/ptev_survey_customer_center" class="cs-notice-link" target="_blank" rel="noopener">1:1 문의하기<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    </div>
+  </div></div>
 </div>
-
-<!-- NAV -->
-<div class="nav" id="nav">
-  <div class="nav-inner">
-    <button class="btn btn-ghost" id="btnPrev" onclick="goPrev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> 이전</button>
-    <div class="nav-spacer"></div>
-    <button class="btn btn-primary" id="btnNext" onclick="goNext()">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
-  </div>
-</div>
+<div class="nav" id="nav"><div class="nav-inner">
+  <button class="btn btn-ghost" id="btnPrev" onclick="goPrev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> 이전</button>
+  <div class="nav-spacer"></div>
+  <button class="btn btn-primary" id="btnNext" onclick="goNext()">다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+</div></div>
 
 <script>
-// ═══════════════════════════════════════════════
-//  설정 - Apps Script URL 여기에 붙여넣기
-// ═══════════════════════════════════════════════
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypcEb-H1VYEbKb33dwchxMk-oM71mv0Gom_7QJZcXccYVa_dFlELVHOlwFFVQwqFIe/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxH8hBkGXdU0-msHt6aof9TWAj7BCrzDwH6Vg0x7B3dXN3pi6c_Ln__r65mP9VdpPT_/exec';
 
-// ═══════════════════════════════════════════════
-//  세션 & URL 파라미터
-// ═══════════════════════════════════════════════
 const sid = 'S_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+const p = new URLSearchParams(location.search);
+const channel = p.get('channel') || '';
+const nickname = p.get('nickname') || '';
+const store = p.get('store') || '';
+const code = p.get('code') || '';
+const phone = p.get('phone') || '';
+const previewMode = !p.get('version') && !channel;
+function resolveVersion() {
+  const vp = (p.get('version') || '').toLowerCase();
+  if (vp === 'u' || vp === 'a' || vp === 'b') return vp;
+  // 채널 값에 버전 숫자 포함: 2→미시작A, 3→미시작B, 그 외(1·숫자 없음)→미등록(기본)
+  if (channel.includes('2')) return 'a';
+  if (channel.includes('3')) return 'b';
+  return 'u';
+}
 
-// URL 파라미터 받기 (새로고침해도 URL에 남아있어서 자동 복구)
-const urlParams = new URLSearchParams(window.location.search);
-const channel = urlParams.get('channel') || '';
-const nickname = urlParams.get('nickname') || '';
-const store = urlParams.get('store') || '';
-const code = urlParams.get('code') || '';
-const phone = urlParams.get('phone') || '';
-
-// ═══════════════════════════════════════════════
-//  페이지 정의 (전체 분기 흐름)
-// ═══════════════════════════════════════════════
-const PAGES = {
-  // ── 메인 카테고리 ──
-  '2': {
-    qid: 'Q2',
-    type: 'radio',
-    text: '참여자 등록을 하지 못한 이유는 무엇인가요?',
+// ═══════════ 공유: 종료 + 지류쿠폰 + 주소 (미시작 a/b) ═══════════
+const SHARED = {
+  'QUIT': {
+    type: 'info', next: 'END', trigger: '종료처리',
+    text: '근무를 종료하셨군요',
+    info: `<div class="info-block">알겠습니다. 참여 종료 처리를 도와드릴게요.<br><br>그동안 참여해주셔서 감사합니다. 다음 기회에 또 만나요! 👋</div>`
+  },
+  'PAPER': {
+    num: 'Q2', qid: '지류쿠폰', type: 'radio',
+    text: '영수증 쿠폰 대신 종이(지류) 쿠폰을 보내드리면 참여해보시겠어요?',
+    info: `<div class="info-block">손님이 영수증 형태라 잘 안 받으시거나 출력이 어려운 경우, 똑같은 혜택의 <strong>종이 쿠폰</strong>을 무료로 보내드릴 수 있어요. 받아서 손님께 나눠주시기만 하면 돼요!</div>`,
     options: [
-      { label: '어떻게 등록하는지 잘 몰랐어요', preview: '등록 필요성, 등록 방법, 참여코드 위치 등', next: '2-1' },
-      { label: '매장에서 등록 시도 중 막혔어요', preview: '오류, 사장님 권한, POS 조작 부담, 프로그램 상태 등', next: '2-2' },
-      { label: '미루거나 안 하고 싶었어요', preview: '까먹음, 귀찮음, 기대 불일치 등', next: '2-3' },
-      { label: '기타', next: '3-11' }
+      { label: '네, 종이 쿠폰으로 받아볼게요', value: '신청', next: 'ADDRESS' },
+      { label: '아니요, 괜찮아요', value: '미신청', next: 'END' }
     ]
   },
-
-  // ── 세부 선지 ──
-  '2-1': {
-    qid: 'Q2-1', type: 'radio',
-    text: '어떤 부분이 어려우셨나요?',
-    options: [
-      { label: '참여자 등록을 해야 하는 줄 몰랐어요', next: '3-1' },
-      { label: '참여자 등록을 해야하는 줄은 알았지만, 방법을 몰랐어요', next: '3-2' },
-      { label: '참여코드를 어디서 봐야 할지 몰랐어요', next: '3-3' }
-    ]
-  },
-  '2-2': {
-    qid: 'Q2-2', type: 'radio',
-    text: '어떤 점이 막혔나요?',
-    options: [
-      { label: '참여자 등록 시도했지만 오류가 떴어요', next: '3-4' },
-      { label: '매장 POS기 내 패스오더 점주용 프로그램은 사장님만 조작 가능해서 참여자 등록을 못 했어요', next: '3-6' },
-      { label: '매장 POS기 내 패스오더 점주용 프로그램을 건드렸다가 다른 곳을 잘못 건드릴까봐 직접 조작하기가 부담스러웠어요', next: '3-7' },
-      { label: '매장 POS기 내 패스오더 점주용 프로그램이 켜져있지 않거나 로그인되어있지 않아서 못 했어요', next: '3-8' }
-    ]
-  },
-  '2-3': {
-    qid: 'Q2-3', type: 'radio',
-    text: '어떤 상황이셨나요?',
-    options: [
-      { label: '참여자 등록해야지 생각만 하다가 까먹었어요', next: '3-A' },
-      { label: '신청만 하면 되는 줄 알았는데 참여자 등록까지 해야 해서 귀찮아서 안 했어요', next: '3-9' },
-      { label: '신청은 했지만 막상 참여하려고 하니 제가 기대하던 내용이 아니었어요', next: '3-10' }
-    ]
-  },
-
-  // ── 3-1: 가이드 메시지 확인 여부 ──
-  '3-1': {
-    qid: 'Q3-1', type: 'radio',
-    text: '신청 후 받으신 카카오톡 가이드 메시지를 확인하셨나요?',
-    info: `
-      <img src="images/guide-message.png" alt="가이드 메시지" class="info-img">
-    `,
-    options: [
-      { label: '예, 확인했어요', next: '3-1-1' },
-      { label: '아니오, 확인하지 못했어요', next: '3-1-2' }
-    ]
-  },
-  '3-1-1': {
-    qid: 'Q3-1-1', type: 'radio',
-    text: '지금 참여자 등록을 할 수 있는 상황이신가요?',
-    info: `
-      <div class="info-block">
-        참여자 등록 방법은 아래 절차를 따라주시면 돼요.
-        <ol class="info-steps" style="margin-top:10px">
-          <li>매장 POS기 내 패스오더 점주용 프로그램 켜기</li>
-          <li>[이벤트 관리] > [시급 2배 챌린지] 탭 진입</li>
-          <li>[참여자 등록] 버튼 클릭</li>
-          <li>본인 참여코드 입력</li>
-        </ol>
-      </div>
-      <img src="images/register-steps.png" alt="참여자 등록 방법" class="info-img">
-      <div class="info-code"><div class="info-code-name">{{store}} {{nickname}}님</div><div class="info-code-row">참여코드<span class="code-val">{{code}}</span></div></div>
-    `,
-    options: [
-      { label: '네, 지금 등록 가능해요', next: 'END' },
-      { label: '지금은 어려워요', next: '3-A' },
-      { label: '잘 이해되지 않았어요', next: 'END', needsCS: true },
-      { label: '이미 시도해봤는데 오류가 떴어요', next: '3-4' }
-    ]
-  },
-  '3-1-2': {
-    qid: 'Q3-1-2', type: 'radio',
-    text: '신청 후 나오는 신청 완료 페이지에서 \'활동 가이드 확인하기\' 버튼을 클릭하셨나요?',
-    info: `
-      <img src="images/signup-complete.png" alt="신청 완료 페이지" class="info-img">
-    `,
-    options: [
-      { label: '예, 클릭했어요', next: '3-1-1' },
-      { label: '아니오, 클릭하지 않았어요', next: '3-1-2-2' }
-    ]
-  },
-  '3-1-2-2': {
-    qid: 'Q3-1-2-2', type: 'radio', etc: true,
-    text: '\'활동 가이드 확인하기\' 버튼을 클릭하지 않으신 이유는 무엇인가요?',
-    options: [
-      { label: '신청만 하면 끝나는 줄 알아서 다른 건 누르지 않았어요', next: '3-1-1' },
-      { label: '이미 등록이 완료된 줄 알았어요', next: '3-1-1' },
-      { label: '나중에 봐야지 하고 잊었어요', next: '3-1-1' },
-      { label: '\'활동 가이드 확인하기\' 버튼이 있는지 몰랐어요', next: '3-1-1' },
-      { label: '기타', next: '3-1-1' }
-    ]
-  },
-
-  // ── 3-2: 등록 방법 안내 ──
-  '3-2': {
-    qid: 'Q3-2', type: 'radio',
-    text: '지금 참여자 등록을 할 수 있는 상황이신가요?',
-    info: `
-      <div class="info-block">
-        참여자 등록 방법은 아래 절차를 따라주시면 돼요.
-        <ol class="info-steps" style="margin-top:10px">
-          <li>매장 POS기 내 패스오더 점주용 프로그램 켜기</li>
-          <li>[이벤트 관리] > [시급 2배 챌린지] 탭 진입</li>
-          <li>[참여자 등록] 버튼 클릭</li>
-          <li>본인 참여코드 입력</li>
-        </ol>
-      </div>
-      <img src="images/register-steps.png" alt="참여자 등록 방법" class="info-img">
-      <div class="info-code"><div class="info-code-name">{{store}} {{nickname}}님</div><div class="info-code-row">참여코드<span class="code-val">{{code}}</span></div></div>
-    `,
-    options: [
-      { label: '네, 지금 등록 가능해요', next: 'END' },
-      { label: '지금은 어려워요', next: '3-A' },
-      { label: '잘 이해되지 않았어요', next: 'END', needsCS: true },
-      { label: '이미 시도해봤는데 오류가 떴어요', next: '3-4' }
-    ]
-  },
-
-  // ── 3-3: 참여코드 위치 안내 ──
-  '3-3': {
-    qid: 'Q3-3', type: 'radio',
-    text: '확인하셨나요?',
-    info: `
-      <div class="info-block">
-        참여코드는 신청 직후 받으신 카카오톡 가이드 메시지 내 <strong>'활동 가이드 확인하기'</strong> 버튼을 클릭하시면 보이는 가이드 웹 안에 있어요.
-      </div>
-      <img src="images/guide-web-code.png" alt="참여코드 위치" class="info-img">
-      <div class="info-block">
-        또한 카카오톡 <strong>'패스오더 알바 지원팀'</strong> 채널에서 1:1 문의 > <strong>'참여코드 확인하기'</strong>를 누르시면 다시 확인 가능해요.
-      </div>
-      <div class="info-code"><div class="info-code-name">{{store}} {{nickname}}님</div><div class="info-code-row">참여코드<span class="code-val">{{code}}</span></div></div>
-    `,
-    options: [
-      { label: '예, 확인했어요', next: '3-2' },
-      { label: '아니오, 아직 모르겠어요', next: 'END', needsCS: true }
-    ]
-  },
-
-  // ── 3-4: 오류 종류 ──
-  '3-4': {
-    qid: 'Q3-4', type: 'radio',
-    text: '어떤 오류가 떴나요?',
-    options: [
-      { label: '유효하지 않은 참여코드예요', next: '3-4-1' },
-      { label: '이미 등록된 참여자예요', next: '3-4-2' },
-      { label: '참여 가능한 매장 수를 초과하여 등록에 실패하였어요', next: '3-4-3' }
-    ]
-  },
-  '3-4-1': {
-    qid: 'Q3-4-1', type: 'radio',
-    text: '다시 시도해보시겠어요?',
-    info: `
-      <div class="info-block">
-        유효하지 않은 참여코드 입력 시, 타 매장 참여코드 입력 시 뜨는 오류입니다.<br>
-        본인의 참여코드가 맞는지 다시 한 번 확인해 주세요.
-      </div>
-      <div class="info-code"><div class="info-code-name">{{store}} {{nickname}}님</div><div class="info-code-row">참여코드<span class="code-val">{{code}}</span></div></div>
-    `,
-    options: [
-      { label: '다시 시도해볼게요', next: 'END' },
-      { label: '그래도 안 돼요', next: 'END', needsCS: true }
-    ]
-  },
-  '3-4-2': {
-    qid: 'Q3-4-2', type: 'info', next: 'END',
-    text: '이미 등록된 참여자예요',
-    info: `
-      <div class="info-block">
-        이미 등록된 참여코드 입력 시 뜨는 오류입니다.<br>
-        이미 참여자 등록을 완료하신 상태이니, 매장 POS기 내 패스오더 점주용 프로그램에서 본인 카드를 확인해 주세요.<br><br>
-        본인이 등록된 것이 아닌 것 같으면 카카오톡 <strong>'패스오더 알바 지원팀'</strong>으로 문의 주세요.
-      </div>
-    `
-  },
-  '3-4-3': {
-    qid: 'Q3-4-3', type: 'info', next: 'END',
-    text: '참여 가능한 매장 수를 초과하였어요',
-    info: `
-      <div class="info-block">
-        동시 참여 매장 15개를 초과하여 등록할 시 뜨는 오류입니다.<br><br>
-        시급 2배 챌린지는 다 매장 참여자 역시 참여 가능합니다. 하지만 동시에 15개 매장을 초과하여 등록할 수는 없습니다.<br><br>
-        다른 매장 참여를 해제하시거나, 운영팀에 문의 주세요.
-      </div>
-    `
-  },
-
-  // ── 3-6: 사장님만 조작 가능 ──
-  '3-6': {
-    qid: 'Q3-6', type: 'radio',
-    text: '저희가 사장님께 참여자 등록을 할 수 있는 환경을 마련할 수 있도록 별도 안내 메시지를 보내드려도 괜찮으신가요?',
-    options: [
-      { label: '네, 보내주세요', next: '3-C' },
-      { label: '아니오, 직접 부탁드려볼게요', next: '3-A' }
-    ]
-  },
-
-  // ── 3-7: POS 조작 부담 ──
-  '3-7': {
-    qid: 'Q3-7', type: 'radio',
-    text: '지금 참여자 등록을 할 수 있는 상황이신가요?',
-    info: `
-      <div class="info-block">
-        패스오더 점주용 프로그램의 <strong>'시급 2배 챌린지' 운영 기능</strong>은 매장 POS의 다른 기능과는 분리되어 있어 충분히 알바 분들도 조작 가능합니다.
-      </div>
-    `,
-    options: [
-      { label: '네, 지금 등록 가능해요', next: '3-2' },
-      { label: '지금은 어려워요', next: '3-A' }
-    ]
-  },
-
-  // ── 3-8: 프로그램 꺼짐/로그인 안 됨 ──
-  '3-8': {
-    qid: 'Q3-8', type: 'radio',
-    text: '저희가 사장님께 매장 POS기 내 패스오더 점주용 프로그램을 켜달라 또는 로그인해달라고 별도 안내 메시지를 보내드려도 괜찮으신가요?',
-    options: [
-      { label: '네, 보내주세요', next: '3-C' },
-      { label: '아니오, 직접 부탁드려볼게요', next: '3-A' }
-    ]
-  },
-
-  // ── 3-9: 귀찮아서 ──
-  '3-9': {
-    qid: 'Q3-9', type: 'radio',
-    text: '한 번 참여해보시겠어요?',
-    info: `
-      <div class="info-block">
-        참여자 등록은 <strong>1분이면 끝나는 간단한 절차</strong>예요!<br><br>
-        한 번만 등록하시면 선착순으로 <strong>선적립금 5,000원</strong>이 적립되고, 활동하셔서 손님이 패스오더 첫 주문 1번 할 때마다 <strong>1,500원의 추가 시급</strong>을 벌 수 있어요.
-      </div>
-    `,
-    options: [
-      { label: '네, 한 번 더 해볼게요', next: '3-2' },
-      { label: '아니오, 종료하고 싶어요', next: 'END', trigger: '종료처리', needsCS: true }
-    ]
-  },
-
-  // ── 3-10: 기대와 다름 ──
-  '3-10': {
-    qid: 'Q3-10', type: 'radio',
-    text: '한 번 참여해보시겠어요?',
-    info: `
-      <div class="info-block">
-        시급 2배 챌린지는 알바로서 본인 영수증 쿠폰을 손님에게 전달하고, 손님이 해당 매장에서 결제 시 본인에게 적립금이 쌓이는 구조입니다.<br><br>
-        한 번 등록하시면 선착순으로 <strong>선적립금 5,000원</strong>이 적립되고, 활동하셔서 손님이 패스오더 첫 주문 1번 할 때마다 <strong>1,500원의 추가 시급</strong>을 벌 수 있어요.
-      </div>
-    `,
-    options: [
-      { label: '네, 한 번 더 검토해볼게요', next: '3-2' },
-      { label: '아니오, 종료하고 싶어요', next: 'END', trigger: '종료처리', needsCS: true }
-    ]
-  },
-
-  // ── 3-11: 기타 직접 입력 ──
-  '3-11': {
-    qid: 'Q3-11', type: 'freetext', next: 'END',
-    text: '참여자 등록을 하지 못한 이유를 자세히 알려주세요',
-    hint: '구체적으로 알려주시면 더 도움이 됩니다'
-  },
-
-  // ── 공통: 3-A 근무일·시간 입력 ──
-  '3-A': {
-    qid: '근무시작일시', type: 'datetime', next: 'END',
-    text: '가장 가까운 다음 근무 시작 일시가 언제인가요?',
-    info: `
-      <div class="info-block">
-        해당 일시 <strong>30분 전</strong>에 까먹지 않게 참여자 등록 리마인드 메시지를 보내드릴게요.
-      </div>
-    `
-  },
-
-  // ── 공통: 3-C 점주 CRM + 근무일시 입력 ──
-  '3-C': {
-    qid: '근무시작일시', type: 'datetime', next: 'END', triggerCRM: true,
-    text: '가장 가까운 다음 근무 시작 일시가 언제인가요?',
-    info: `
-      <div class="info-block">
-        해당 일시 <strong>30분 전</strong>에 사장님께 별도 안내 메시지를 보내드려 참여자 등록을 도와드릴 수 있도록 하고, 참여자분께도 까먹지 않게 참여자 등록 리마인드 메시지도 함께 보내드릴게요.
-      </div>
-    `
-  },
-
-  // ── 공통: 3-E 종료 처리 ──
-  '3-E': {
-    qid: '종료처리', type: 'info', next: 'END', triggerEnd: true,
-    text: '종료 처리를 도와드릴게요',
-    info: `
-      <div class="info-block">
-        알겠습니다. 종료 처리 도와드릴게요.<br><br>
-        귀한 의견 감사합니다. 다음 시즌에 다시 만나요!
-      </div>
-    `
+  'ADDRESS': {
+    num: 'Q3', type: 'address', next: 'END',
+    text: '종이 쿠폰을 받으실 주소를 알려주세요',
+    info: `<div class="info-block">입력해주신 주소로 종이 쿠폰을 보내드릴게요. 📮<br>매장 주소로 받으시면 분실 위험이 커요. 가능하면 <strong>개인 자택 주소</strong>로 작성해주시면 감사하겠습니다. 🙏</div>`
   }
 };
 
-// ═══════════════════════════════════════════════
-//  상태
-// ═══════════════════════════════════════════════
-const answers = {};
-const history = ['2']; // 페이지 히스토리 (이전 버튼용)
-let currentPageId = '2';
-let needsCS = false; // 고객센터 안내 필요 여부
+// ═══════════ 공유: 전달 funnel (미시작 A/B 공통) ═══════════
+const FUNNEL = {
+  // ── Q1-2 (공통): 손님 전달 어디서 막혔는지 ──
+  'FN-Q': {
+    num: 'Q1-2', qid: 'Q1', type: 'radio',
+    text: '구체적으로 어떤 상황에 가장 가까우세요?',
+    options: [
+      { label: '출력은 했지만 손님에게 나눠주지는 않았어요', next: 'FN-distribute' },
+      { label: '나눠줬지만 손님이 받기를 거절했어요', next: 'FN-reject' },
+      { label: '나눠줬지만 손님이 받고 나서 참여하지 않은 것 같아요', next: 'FN-noconvert' },
+      { label: '첫 주문 대상 손님한테만 주려다 보니, 줄 손님이 많이 없어요', next: 'FN-giveall' },
+      { label: '기타', next: 'CLASSIFY' }
+    ]
+  },
 
-// ═══════════════════════════════════════════════
-//  초기화
-// ═══════════════════════════════════════════════
+  // ① 출력은 했지만 안 나눠줌 → 왜 안 나눠줬는지
+  'FN-distribute': {
+    num: 'Q2', qid: '안나눔이유', type: 'radio',
+    text: '출력은 하셨는데, 어떤 점 때문에 손님에게 나눠주지 못하셨나요?',
+    options: [
+      { label: '손님에게 직접 건네는 게 부담스럽고 어색해서', next: 'FN-dist-tip' },
+      { label: '사장님 눈치가 보여서', next: 'FN-dist-owner' },
+      { label: '바쁘거나 깜빡해서 못 건넸어요', next: 'FN-dist-remind' },
+      { label: '기타', next: 'END' }
+    ]
+  },
+  'FN-dist-tip': {
+    type: 'info', next: 'END',
+    text: '손님에게 이렇게도 나눠줘보세요!',
+    info: `<div class="tip-box"><div class="tip-head">💡 상황별 전달 꿀팁</div>
+      <ul class="tip-box-list">
+        <li><span class="tip-box-num">①</span><span>제조 완료된 음료의 <strong>컵홀더에 미리 끼워서</strong> 전달하기</span></li>
+        <li><span class="tip-box-num">②</span><span>미리 많이 뽑아 <strong>카운터·픽업대·키오스크에 비치</strong>하기</span></li>
+      </ul></div>`
+  },
+  'FN-dist-owner': {
+    num: 'Q3', qid: '사장님코멘트', type: 'freetext', next: 'END',
+    text: '사장님께서 어떤 말씀을 하셨는지 편하게 적어주세요.',
+    info: `<div class="info-block">알려주시면 사장님께 안내드릴 때 참고할게요.</div>`
+  },
+  'FN-dist-remind': {
+    num: 'Q3', qid: '근무시작일시', type: 'datetime', next: 'END',
+    text: '가장 가까운 다음 근무 시작 일시가 언제인가요?',
+    info: `<div class="info-block">그 시간에 맞춰 <strong>"오늘 출근하면 손님에게 영수증 쿠폰 나눠주기"</strong> 리마인드를 보내드릴게요. 까먹지 않게 도와드릴게요! ⏰</div>`
+  },
+
+  // ② 거절 → 왜 거절했다고 생각하는지 (영수증 형태 → 종이쿠폰)
+  'FN-reject': {
+    num: 'Q2', qid: '거절이유', type: 'radio',
+    text: '손님이 왜 거절하셨던 것 같으세요?',
+    options: [
+      { label: '영수증 형태라 부담스러워 하시는 것 같아요', next: 'PAPER' },
+      { label: '혜택이 한눈에 와닿지 않았던 것 같아요', next: 'FN-reject-msg' },
+      { label: '바쁘거나 관심이 없어 보이셨어요', next: 'FN-reject-msg' },
+      { label: '기타', next: 'END' }
+    ]
+  },
+  'FN-reject-msg': {
+    type: 'info', next: 'END',
+    text: '전달하면서, 간단한 설명을 덧붙여 보는것도 좋아요!',
+    info: `<div class="info-block">쿠폰만으로 알 수 없는 정보를 간단하게 전달해봐요!<br><br>💬 "다음에 방문하실 때 패스오더로 저희 매장 첫 주문 하시면, <strong>아메리카노 100원</strong>에 주문하실 수 있으세요! 손님이 이 쿠폰으로 주문해주시면 저도 혜택을 받을 수 있어요!"</div>`
+  },
+
+  // ③ 받았지만 참여 안 함 → 왜 참여 안 했는지
+  'FN-noconvert': {
+    num: 'Q2', qid: '미참여이유', type: 'radio',
+    text: '쿠폰을 받은 손님이 왜 쿠폰을 사용하여 주문하지 않은 것 같으신가요?',
+    options: [
+      { label: '첫 주문 할인 혜택을 잘 모르셨던 것 같아요', next: 'FN-noconv-tip' },
+      { label: '패스오더 앱 설치·주문이 번거로워 보이셨어요', next: 'FN-noconv-tip' },
+      { label: '다음번에 사용하려고 미뤄두신 것 같아요', next: 'FN-noconv-tip' },
+      { label: '이미 패스오더를 쓰시는 분 같았어요', next: 'END' },
+      { label: '기타', next: 'END' }
+    ]
+  },
+  'FN-noconv-tip': {
+    type: 'info', next: 'END',
+    text: '전달하면서, 간단한 설명을 덧붙여 보는것도 좋아요!',
+    info: `<div class="info-block">쿠폰만으로 알 수 없는 정보를 간단하게 전달해봐요!<br><br>💬 "다음에 방문하실 때 패스오더로 저희 매장 첫 주문 하시면, <strong>아메리카노 100원</strong>에 주문하실 수 있으세요! 손님이 이 쿠폰으로 주문해주시면 저도 혜택을 받을 수 있어요!"</div>`
+  },
+
+  // ④ 첫 주문 대상만 주려다 줄 손님 적음 → 해결 어려움(그냥 제출)
+  'FN-giveall': {
+    type: 'info', next: 'END',
+    text: '물어보고 나눠주기보다는 일단 나눠줘보세요!',
+    info: `<div class="info-block">손님이 패스오더 첫 주문 대상자인지를 물어보면서 쿠폰을 나눠주면, 시간도 오래 걸리고 번거로울 수 있어요. 대신 <strong>우리 매장에 방문하는 모든 손님들에게 일단 나눠주시는 건</strong> 어떨까요?<br><br>바쁜 시간이라 물어보지도 못하고 쿠폰을 못 나눠준 손님 중에 우리 매장 패스오더 첫 주문 손님이 있을지도 몰라요!</div>`
+  }
+};
+
+// ═══════════ 설문 정의 ═══════════
+const SURVEYS = {
+
+  // ── u: 미등록 (참여자 등록 미완료) ──
+  u: {
+    intro: {
+      tag: '⚡ 시급 2배 챌린지', icon: '💌',
+      title: '어떤 어려움이<br><em>있으셨는지 알려주세요</em>',
+      descs: [
+        '이 설문은 신청 후 아직 참여자 등록을 완료하지 않은 분들 대상으로 진행돼요.',
+        '등록 과정에서 어떤 어려움이 있으셨는지 알려주시면, 그에 맞춰 <strong>즉시 해결 방법</strong>을 안내드릴게요! 🛠️'
+      ],
+      toggle: { label: '💡 참여자 등록이 왜 필요한가요?', content: `신청 후 받으신 '참여코드'를 매장 POS 내 패스오더 점주용 프로그램에 입력해야 본인 명의 쿠폰을 출력해서 리워드를 받을 수 있어요. 🤫 실제 참여자들은 월 평균 102,500원 정도 받아요.` },
+      startBtn: '👉 이유 선택하고 바로 해결하기', time: '⏱️ 약 1분 (매우 짧아요!)'
+    },
+    start: '2',
+    pages: {
+      '2': { num:'Q2', qid:'Q2', type:'radio', text:'참여자 등록을 하지 못한 이유는 무엇인가요?', options:[
+        { label:'어떻게 등록하는지 잘 몰랐어요', preview:'등록 필요성, 등록 방법, 참여코드 위치 등', next:'2-1' },
+        { label:'매장에서 등록 시도 중 막혔어요', preview:'오류, 사장님 권한, POS 조작 부담, 프로그램 상태 등', next:'2-2' },
+        { label:'미루거나 안 하고 싶었어요', preview:'까먹음, 귀찮음, 기대 불일치 등', next:'2-3' },
+        { label:'기타', next:'3-11' }
+      ]},
+      '2-1': { num:'Q2-1', qid:'Q2-1', type:'radio', text:'어떤 부분이 어려우셨나요?', options:[
+        { label:'참여자 등록을 해야 하는 줄 몰랐어요', next:'3-1' },
+        { label:'참여자 등록을 해야하는 줄은 알았지만, 방법을 몰랐어요', next:'3-2' },
+        { label:'참여코드를 어디서 봐야 할지 몰랐어요', next:'3-3' },
+        { label:'기타', next:'END' }
+      ]},
+      '2-2': { num:'Q2-2', qid:'Q2-2', type:'radio', text:'어떤 점이 막혔나요?', options:[
+        { label:'참여자 등록 시도했지만 오류가 떴어요', next:'3-4' },
+        { label:'매장 POS기 내 패스오더 점주용 프로그램은 사장님만 조작 가능해서 참여자 등록을 못 했어요', next:'3-6' },
+        { label:'매장 POS기 내 패스오더 점주용 프로그램을 건드렸다가 다른 곳을 잘못 건드릴까봐 직접 조작하기가 부담스러웠어요', next:'3-7' },
+        { label:'매장 POS기 내 패스오더 점주용 프로그램이 켜져있지 않거나 로그인되어있지 않아서 못 했어요', next:'3-8' },
+        { label:'기타', next:'END' }
+      ]},
+      '2-3': { num:'Q2-3', qid:'Q2-3', type:'radio', text:'어떤 상황이셨나요?', options:[
+        { label:'참여자 등록해야지 생각만 하다가 까먹었어요', next:'3-A' },
+        { label:'신청만 하면 되는 줄 알았는데 참여자 등록까지 해야 해서 귀찮아서 안 했어요', next:'3-9' },
+        { label:'신청은 했지만 막상 참여하려고 하니 제가 기대하던 내용이 아니었어요', next:'3-10' },
+        { label:'기타', next:'END' }
+      ]},
+      '3-1': { num:'Q3-1', qid:'Q3-1', type:'radio', text:'신청 후 받으신 카카오톡 가이드 메시지를 확인하셨나요?',
+        info:`<img src="images/guide-message.png" alt="가이드 메시지" class="info-img">`, options:[
+        { label:'예, 확인했어요', next:'3-1-1' },
+        { label:'아니오, 확인하지 못했어요', next:'3-1-2' }
+      ]},
+      '3-1-1': { num:'Q3-1-1', qid:'Q3-1-1', type:'radio', text:'지금 참여자 등록을 할 수 있는 상황이신가요?',
+        info:`<div class="info-block">참여자 등록 방법은 아래 절차를 따라주시면 돼요.<ol class="info-steps" style="margin-top:10px"><li>매장 POS기 내 패스오더 점주용 프로그램 켜기</li><li>[이벤트 관리] > [시급 2배 챌린지] 탭 진입</li><li>[참여자 등록] 버튼 클릭</li><li>본인 참여코드 입력</li></ol></div><img src="images/register-steps.png" alt="참여자 등록 방법" class="info-img"><div class="info-code"><div class="info-code-name">{{store}} {{nickname}}님</div><div class="info-code-row">참여코드<span class="code-val">{{code}}</span></div></div>`, options:[
+        { label:'네, 지금 등록 가능해요', next:'END' },
+        { label:'지금은 어려워요', next:'3-A' },
+        { label:'잘 이해되지 않았어요', next:'END', needsCS:true },
+        { label:'이미 시도해봤는데 오류가 떴어요', next:'3-4' }
+      ]},
+      '3-1-2': { num:'Q3-1-2', qid:'Q3-1-2', type:'radio', text:`신청 후 나오는 신청 완료 페이지에서 '활동 가이드 확인하기' 버튼을 클릭하셨나요?`,
+        info:`<img src="images/signup-complete.png" alt="신청 완료 페이지" class="info-img">`, options:[
+        { label:'예, 클릭했어요', next:'3-1-1' },
+        { label:'아니오, 클릭하지 않았어요', next:'3-1-2-2' }
+      ]},
+      '3-1-2-2': { num:'Q3-1-2-2', qid:'Q3-1-2-2', type:'radio', text:`'활동 가이드 확인하기' 버튼을 클릭하지 않으신 이유는 무엇인가요?`, options:[
+        { label:'신청만 하면 끝나는 줄 알아서 다른 건 누르지 않았어요', next:'3-1-1' },
+        { label:'이미 등록이 완료된 줄 알았어요', next:'3-1-1' },
+        { label:'나중에 봐야지 하고 잊었어요', next:'3-1-1' },
+        { label:`'활동 가이드 확인하기' 버튼이 있는지 몰랐어요`, next:'3-1-1' },
+        { label:'기타', next:'3-1-1' }
+      ]},
+      '3-2': { num:'Q3-2', qid:'Q3-2', type:'radio', text:'지금 참여자 등록을 할 수 있는 상황이신가요?',
+        info:`<div class="info-block">참여자 등록 방법은 아래 절차를 따라주시면 돼요.<ol class="info-steps" style="margin-top:10px"><li>매장 POS기 내 패스오더 점주용 프로그램 켜기</li><li>[이벤트 관리] > [시급 2배 챌린지] 탭 진입</li><li>[참여자 등록] 버튼 클릭</li><li>본인 참여코드 입력</li></ol></div><img src="images/register-steps.png" alt="참여자 등록 방법" class="info-img"><div class="info-code"><div class="info-code-name">{{store}} {{nickname}}님</div><div class="info-code-row">참여코드<span class="code-val">{{code}}</span></div></div>`, options:[
+        { label:'네, 지금 등록 가능해요', next:'END' },
+        { label:'지금은 어려워요', next:'3-A' },
+        { label:'잘 이해되지 않았어요', next:'END', needsCS:true },
+        { label:'이미 시도해봤는데 오류가 떴어요', next:'3-4' }
+      ]},
+      '3-3': { num:'Q3-3', qid:'Q3-3', type:'radio', text:'확인하셨나요?',
+        info:`<div class="info-block">참여코드는 신청 직후 받으신 카카오톡 가이드 메시지 내 <strong>'활동 가이드 확인하기'</strong> 버튼을 클릭하시면 보이는 가이드 웹 안에 있어요.</div><img src="images/guide-web-code.png" alt="참여코드 위치" class="info-img"><div class="info-block">또한 카카오톡 <strong>'패스오더 알바 지원팀'</strong> 채널에서 1:1 문의 > <strong>'참여코드 확인하기'</strong>를 누르시면 다시 확인 가능해요.</div><div class="info-code"><div class="info-code-name">{{store}} {{nickname}}님</div><div class="info-code-row">참여코드<span class="code-val">{{code}}</span></div></div>`, options:[
+        { label:'예, 확인했어요', next:'3-2' },
+        { label:'아니오, 아직 모르겠어요', next:'END', needsCS:true }
+      ]},
+      '3-4': { num:'Q3-4', qid:'Q3-4', type:'radio', text:'어떤 오류가 떴나요?', options:[
+        { label:'유효하지 않은 참여코드예요', next:'3-4-1' },
+        { label:'이미 등록된 참여자예요', next:'3-4-2' },
+        { label:'참여 가능한 매장 수를 초과하여 등록에 실패하였어요', next:'3-4-3' },
+        { label:'기타', next:'END' }
+      ]},
+      '3-4-1': { num:'Q3-4-1', qid:'Q3-4-1', type:'radio', text:'다시 시도해보시겠어요?',
+        info:`<div class="info-block">유효하지 않은 참여코드 입력 시, 타 매장 참여코드 입력 시 뜨는 오류입니다.<br>본인의 참여코드가 맞는지 다시 한 번 확인해 주세요.</div><div class="info-code"><div class="info-code-name">{{store}} {{nickname}}님</div><div class="info-code-row">참여코드<span class="code-val">{{code}}</span></div></div>`, options:[
+        { label:'다시 시도해볼게요', next:'END' },
+        { label:'그래도 안 돼요', next:'END', needsCS:true }
+      ]},
+      '3-4-2': { num:'Q3-4-2', qid:'Q3-4-2', type:'info', next:'END', text:'이미 등록된 참여자예요',
+        info:`<div class="info-block">이미 등록된 참여코드 입력 시 뜨는 오류입니다.<br>이미 참여자 등록을 완료하신 상태이니, 매장 POS기 내 패스오더 점주용 프로그램에서 본인 카드를 확인해 주세요.<br><br>본인이 등록된 것이 아닌 것 같으면 카카오톡 <strong>'패스오더 알바 지원팀'</strong>으로 문의 주세요.</div>` },
+      '3-4-3': { num:'Q3-4-3', qid:'Q3-4-3', type:'info', next:'END', text:'참여 가능한 매장 수를 초과하였어요',
+        info:`<div class="info-block">동시 참여 매장 15개를 초과하여 등록할 시 뜨는 오류입니다.<br><br>시급 2배 챌린지는 다 매장 참여자 역시 참여 가능합니다. 하지만 동시에 15개 매장을 초과하여 등록할 수는 없습니다.<br><br>다른 매장 참여를 해제하시거나, 운영팀에 문의 주세요.</div>` },
+      '3-6': { num:'Q3-6', qid:'Q3-6', type:'radio', text:'저희가 사장님께 참여자 등록을 할 수 있는 환경을 마련할 수 있도록 별도 안내 메시지를 보내드려도 괜찮으신가요?', options:[
+        { label:'네, 보내주세요', next:'3-C' },
+        { label:'아니오, 직접 부탁드려볼게요', next:'3-A' }
+      ]},
+      '3-7': { num:'Q3-7', qid:'Q3-7', type:'radio', text:'지금 참여자 등록을 할 수 있는 상황이신가요?',
+        info:`<div class="info-block">패스오더 점주용 프로그램의 <strong>'시급 2배 챌린지' 운영 기능</strong>은 매장 POS의 다른 기능과는 분리되어 있어 충분히 알바 분들도 조작 가능합니다.</div>`, options:[
+        { label:'네, 지금 등록 가능해요', next:'3-2' },
+        { label:'지금은 어려워요', next:'3-A' }
+      ]},
+      '3-8': { num:'Q3-8', qid:'Q3-8', type:'radio', text:'저희가 사장님께 매장 POS기 내 패스오더 점주용 프로그램을 켜달라 또는 로그인해달라고 별도 안내 메시지를 보내드려도 괜찮으신가요?', options:[
+        { label:'네, 보내주세요', next:'3-C' },
+        { label:'아니오, 직접 부탁드려볼게요', next:'3-A' }
+      ]},
+      '3-9': { num:'Q3-9', qid:'Q3-9', type:'radio', text:'한 번 참여해보시겠어요?',
+        info:`<div class="info-block">참여자 등록은 <strong>1분이면 끝나는 간단한 절차</strong>예요!<br><br>한 번만 등록하시면 선착순으로 <strong>선적립금 5,000원</strong>이 적립되고, 활동하셔서 손님이 패스오더 첫 주문 1번 할 때마다 <strong>1,500원의 추가 시급</strong>을 벌 수 있어요.</div>`, options:[
+        { label:'네, 한 번 더 해볼게요', next:'3-2' },
+        { label:'아니오, 종료하고 싶어요', next:'END', trigger:'종료처리', needsCS:true }
+      ]},
+      '3-10': { num:'Q3-10', qid:'Q3-10', type:'radio', text:'한 번 참여해보시겠어요?',
+        info:`<div class="info-block">시급 2배 챌린지는 알바로서 본인 영수증 쿠폰을 손님에게 전달하고, 손님이 해당 매장에서 결제 시 본인에게 적립금이 쌓이는 구조입니다.<br><br>한 번 등록하시면 선착순으로 <strong>선적립금 5,000원</strong>이 적립되고, 활동하셔서 손님이 패스오더 첫 주문 1번 할 때마다 <strong>1,500원의 추가 시급</strong>을 벌 수 있어요.</div>`, options:[
+        { label:'네, 한 번 더 검토해볼게요', next:'3-2' },
+        { label:'아니오, 종료하고 싶어요', next:'END', trigger:'종료처리', needsCS:true }
+      ]},
+      '3-11': { num:'Q3-11', qid:'Q3-11', type:'freetext', next:'END', text:'참여자 등록을 하지 못한 이유를 자세히 알려주세요', hint:'구체적으로 알려주시면 더 도움이 됩니다' },
+      '3-A': { num:'Q3-A', qid:'근무시작일시', type:'datetime', next:'END', text:'가장 가까운 다음 근무 시작 일시가 언제인가요?',
+        info:`<div class="info-block">해당 일시 <strong>30분 전</strong>에 까먹지 않게 참여자 등록 리마인드 메시지를 보내드릴게요.</div>` },
+      '3-C': { num:'Q3-C', qid:'근무시작일시', type:'datetime', next:'END', triggerCRM:true, text:'가장 가까운 다음 근무 시작 일시가 언제인가요?',
+        info:`<div class="info-block">해당 일시 <strong>30분 전</strong>에 사장님께 별도 안내 메시지를 보내드려 참여자 등록을 도와드릴 수 있도록 하고, 참여자분께도 까먹지 않게 참여자 등록 리마인드 메시지도 함께 보내드릴게요.</div>` }
+    }
+  },
+
+  // ── a: 미시작 활동중단 ──
+  a: {
+    start: 'A-Q1',
+    pages: {
+      'A-Q1': { num:'Q1', qid:'Q1', type:'radio', text:'활동을 이어가시는 데 가장 큰 어려움은 무엇이었나요?', options:[
+        { label:'영수증 쿠폰 출력을 못하는 상황이라서', preview:'깜빡, 매번 번거로움, 용지 값, 사장님 눈치 등', next:'A-Q1a' },
+        { label:'손님에게 나눠주는 게 어려워서', preview:'안 나눠줌, 거절, 받고 참여 안 함, 줄 손님 적음 등', next:'FN-Q' },
+        { label:'더 이상 이 매장에서 근무하지 않아요', next:'END', trigger:'종료처리' },
+        { label:'기타', next:'CLASSIFY' }
+      ]},
+      'A-Q1a': { num:'Q1-1', qid:'Q1', type:'radio', text:'구체적인 이유를 선택해주세요.', options:[
+        { label:'자꾸 잊어버리게 돼서 (출근하면 깜빡함)', next:'A-remind' },
+        { label:'매번 출력하는 게 번거롭고 귀찮아서', next:'A-bulkprint' },
+        { label:'영수증 용지 값 때문에 못 뽑겠어요', next:'PAPER' },
+        { label:'영수증 출력이 사장님 눈치가 보여서', next:'PAPER' },
+        { label:'기타', next:'CLASSIFY' }
+      ]},
+      'A-remind': { num:'Q2', qid:'근무시작일시', type:'datetime', next:'END', text:'가장 가까운 다음 근무 시작 일시가 언제인가요?',
+        info:`<div class="info-block">그 시간에 맞춰 <strong>"오늘 출근하면 영수증 쿠폰 출력하기"</strong> 리마인드를 보내드릴게요. 까먹지 않게 도와드릴게요! ⏰</div>` },
+      'A-bulkprint': { num:'Q2', qid:'근무시작일시', type:'datetime', next:'END', text:'가장 가까운 다음 근무 시작 일시가 언제인가요?',
+        info:`<div class="tip-box"><div class="tip-head">💡 이렇게 해보세요!</div>매번 1매씩 출력하는 것이 아니라, 미리 <strong>30~50매</strong>를 뽑아두고 손님에게 나눠주시면 훨씬 편해요!</div><div class="info-block">가장 가까운 다음 근무일에 '출근하면, 영수증 쿠폰 30~50매 미리 뽑아두기' 내용을 다시 리마인드 드릴게요! 근무 시작 일시를 알려주세요. ⏰</div>` },
+      ...FUNNEL, ...SHARED
+    }
+  },
+
+  // ── b: 미시작 성과없음 (전달 funnel 플랫) ──
+  b: {
+    start: 'B-Q1',
+    pages: {
+      'B-Q1': { num:'Q1', qid:'Q1', type:'radio', text:'활동을 열심히 하셨는데도 추가 시급을 받지 못한 이유가 무엇이라고 생각하세요?', options:[
+        { label:'손님에게 잘 전달되지 않아서', preview:'안 나눠줌, 거절, 받고 참여 안 함, 줄 손님 적음 등', next:'FN-Q' },
+        { label:'더 이상 이 매장에서 근무하지 않아요', next:'END', trigger:'종료처리' },
+        { label:'기타', next:'CLASSIFY' }
+      ]},
+      ...FUNNEL, ...SHARED
+    }
+  }
+};
+
+// 기타 분류 → 다음 페이지 (a/b)
+const CATEGORY_MAP = {
+  a: { '깜빡':'A-remind', '번거로움':'A-bulkprint', '안나눔':'FN-distribute', '거절':'FN-reject', '미참여':'FN-noconvert', '대상부족':'FN-giveall', '영수증형태':'PAPER', '근무중단':'QUIT', '기타':'END' },
+  b: { '안나눔':'FN-distribute', '거절':'FN-reject', '미참여':'FN-noconvert', '대상부족':'FN-giveall', '영수증형태':'PAPER', '근무중단':'QUIT', '기타':'END' }
+};
+
+// ═══════════ 상태 ═══════════
+let version = 'a', SURVEY = SURVEYS.a, PAGES = SURVEY.pages;
+let answers = {}, history = [], currentPageId = SURVEY.start, needsCS = false;
+
+// ═══════════ 버전 로드 ═══════════
+function loadVersion(v) {
+  version = (v === 'u' || v === 'b') ? v : 'a';
+  SURVEY = SURVEYS[version]; PAGES = SURVEY.pages;
+  answers = {}; history = [SURVEY.start]; currentPageId = SURVEY.start; needsCS = false;
+  document.getElementById('step-end').classList.remove('active');
+  document.getElementById('cs-notice').classList.remove('show');
+  document.getElementById('qWrap').innerHTML = '';
+  document.getElementById('step-intro').classList.remove('active');
+  document.querySelectorAll('.vt-btn').forEach(b => b.classList.toggle('active', b.dataset.v === version));
+  saveData('_PAGE_VIEW', location.href);
+  if (SURVEY.intro) {
+    renderIntro();
+    document.getElementById('step-intro').classList.add('active');
+    document.getElementById('nav').style.display = 'none';
+    scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    document.getElementById('nav').style.display = 'block';
+    saveData('_SESSION_START', new Date().toISOString());
+    renderPage(currentPageId);
+  }
+}
+
 (function init() {
-  document.getElementById('step-intro').classList.add('active');
-  // 인트로에 참여코드 자동 표시
-  const introCode = document.getElementById('introCode');
-  if (introCode) introCode.textContent = code || '확인 필요';
-  saveData('_PAGE_VIEW', window.location.href);
+  if (previewMode) document.getElementById('verToggle').style.display = 'flex';
+  loadVersion(resolveVersion());
 })();
 
-// 인포 박스 토글
-function toggleInfo() {
-  const content = document.getElementById('infoContent');
-  const arrow = document.getElementById('toggleArrow');
-  if (content) content.classList.toggle('open');
-  if (arrow) arrow.classList.toggle('open');
+function renderIntro() {
+  const c = SURVEY.intro;
+  let h = `<div class="intro-tag">${c.tag}</div><div class="card intro-card"><span class="intro-icon">${c.icon}</span><h1 class="intro-title">${c.title}</h1>`;
+  c.descs.forEach(d => h += `<p class="intro-desc">${d}</p>`);
+  if (c.toggle) {
+    h += `<div class="intro-info-box"><button class="intro-info-toggle" type="button" onclick="toggleInfo()"><span>${c.toggle.label}</span><svg class="toggle-arrow" id="toggleArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button><div class="intro-info-content" id="infoContent">${c.toggle.content}</div></div>`;
+  }
+  h += `<button class="btn btn-start" onclick="startSurvey()">${c.startBtn} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button><p class="intro-time">${c.time}</p></div>`;
+  document.getElementById('step-intro').innerHTML = h;
+}
+function toggleInfo() { const c = document.getElementById('infoContent'), a = document.getElementById('toggleArrow'); if (c) c.classList.toggle('open'); if (a) a.classList.toggle('open'); }
+
+function startSurvey() {
+  document.getElementById('step-intro').classList.remove('active');
+  document.getElementById('nav').style.display = 'block';
+  history = [SURVEY.start]; currentPageId = SURVEY.start;
+  saveData('_SESSION_START', new Date().toISOString());
+  renderPage(currentPageId);
 }
 
-// datetime input - 값 입력 시 has-value 클래스 토글
-function onDtChg(el, pageId) {
-  if (el.value) el.classList.add('has-value');
-  else el.classList.remove('has-value');
-  onChg(pageId);
-}
-
-// ═══════════════════════════════════════════════
-//  렌더링
-// ═══════════════════════════════════════════════
+// ═══════════ 렌더링 ═══════════
 function renderPage(pageId) {
   const page = PAGES[pageId];
   if (!page) return;
-
   const w = document.getElementById('qWrap');
   w.innerHTML = '';
   const d = document.createElement('div');
   d.className = 'step active';
 
   let h = `<div class="card">`;
-  h += `<div class="q-num">${page.qid || ''}</div>`;
-  h += `<div class="q-text">${page.text}</div>`;
+  if (page.num) h += `<div class="q-num">${page.num}</div>`;
+  h += `<div class="q-text">${page.text.replace(/\n/g, '<br>')}</div>`;
   if (page.hint) h += `<div class="q-hint">${page.hint}</div>`;
   h += `<div class="q-gap"></div>`;
+  if (page.info) h += fill(page.info);
 
-  // info (안내 텍스트·이미지)
-  if (page.info) {
-    h += page.info
-      .replace(/\{\{code\}\}/g, code || '확인 필요')
-      .replace(/\{\{nickname\}\}/g, nickname || '')
-      .replace(/\{\{store\}\}/g, store || '');
-  }
-
-  // 입력 타입별
   if (page.type === 'radio') {
     h += `<div class="opts">`;
     page.options.forEach((o, i) => {
       const isE = o.label === '기타';
-      h += `<div class="opt"><input type="radio" name="${pageId}" id="${pageId}_${i}" value="${o.label}" data-next="${o.next}" ${isE?'data-etc="1"':''} onchange="onChg('${pageId}')">`;
-      h += `<label class="opt-label" for="${pageId}_${i}"><span class="ind"></span>`;
-      h += `<div class="opt-content"><div class="opt-main">${o.label}</div>`;
+      h += `<div class="opt"><input type="radio" name="${pageId}" id="${pageId}_${i}" value="${o.value || o.label}" data-next="${o.next}" ${isE ? 'data-etc="1"' : ''} onchange="onChg('${pageId}')">`;
+      h += `<label class="opt-label" for="${pageId}_${i}"><span class="ind"></span><div class="opt-content"><div class="opt-main">${o.label}</div>`;
       if (o.preview) h += `<div class="opt-preview">${o.preview}</div>`;
       h += `</div></label></div>`;
       if (isE) h += `<div class="etc-wrap" id="${pageId}_ew"><textarea class="etc-ta" id="${pageId}_et" placeholder="직접 입력해 주세요..." oninput="onChg('${pageId}')"></textarea></div>`;
     });
     h += `</div>`;
+    h += `<div class="inline-tip" id="${pageId}_tip"></div>`;
+  } else if (page.type === 'datetime') {
+    const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    const minDt = now.toISOString().slice(0, 16);
+    const ex = new Date(); ex.setDate(ex.getDate() + 1);
+    const ph = `${ex.getFullYear()}-${String(ex.getMonth() + 1).padStart(2, '0')}-${String(ex.getDate()).padStart(2, '0')}  14:00`;
+    h += `<div class="dt-wrapper"><input type="datetime-local" id="${pageId}_dt" class="dt-input" min="${minDt}" oninput="onDtChg(this,'${pageId}')"><div class="dt-placeholder">${ph}</div></div><div class="dt-hint">📅 위를 눌러서 날짜와 시간을 선택해주세요</div>`;
+  } else if (page.type === 'address') {
+    h += `<div class="addr-row"><input type="text" class="addr-zip" id="${pageId}_zip" placeholder="우편번호" readonly>
+      <button type="button" class="btn-search" onclick="openPostcode('${pageId}')">주소 검색</button></div>
+      <input type="text" class="addr-input" id="${pageId}_addr" placeholder="도로명/지번 주소" readonly>
+      <input type="text" class="addr-input" id="${pageId}_detail" placeholder="상세주소 (동·호수 등)" oninput="onChg('${pageId}')">`;
   } else if (page.type === 'freetext') {
     h += `<textarea class="free-ta" id="${pageId}_t" placeholder="자유롭게 적어주세요..." oninput="onChg('${pageId}')"></textarea>`;
-  } else if (page.type === 'datetime') {
-    // 현재 시간을 로컬 타임존 기준 ISO 형식으로 (min 속성용 - 과거 못 선택)
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    const minDt = now.toISOString().slice(0, 16);
-
-    // placeholder용 예시 (다음 날 오후 2시)
-    const example = new Date();
-    example.setDate(example.getDate() + 1);
-    const yyyy = example.getFullYear();
-    const mm = String(example.getMonth() + 1).padStart(2, '0');
-    const dd = String(example.getDate()).padStart(2, '0');
-    const placeholderTxt = `${yyyy}-${mm}-${dd}  14:00`;
-
-    h += `<div class="dt-wrapper">`;
-    h += `<input type="datetime-local" id="${pageId}_dt" class="dt-input" min="${minDt}" oninput="onDtChg(this, '${pageId}')">`;
-    h += `<div class="dt-placeholder">${placeholderTxt}</div>`;
-    h += `</div>`;
-    h += `<div class="dt-hint">📅 위를 눌러서 날짜와 시간을 선택해주세요</div>`;
-  } else if (page.type === 'info') {
-    // 정보만 표시 (별도 입력 X)
   }
 
   h += `<div class="val-msg" id="val_${pageId}">⚠️ 답변을 선택해 주세요</div></div>`;
   d.innerHTML = h;
   w.appendChild(d);
-
-  // 복원
   restoreAns(pageId);
-
-  // 버튼
-  updateBtn(page);
+  document.getElementById('btnPrev').style.display = (history.length <= 1) ? 'none' : '';
+  if (page.type === 'radio') syncRadioUI(pageId); else updateBtn(page);
   updateProg();
-  window.scrollTo({top: 0, behavior: 'smooth'});
+  scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function restoreAns(pageId) {
-  const a = answers[pageId];
-  const page = PAGES[pageId];
-  if (a == null) return;
+function fill(s) { return s.replace(/\{\{code\}\}/g, code || '확인 필요').replace(/\{\{nickname\}\}/g, nickname || '').replace(/\{\{store\}\}/g, store || ''); }
 
+function restoreAns(pageId) {
+  const a = answers[pageId], page = PAGES[pageId];
+  if (a == null) return;
   if (page.type === 'radio') {
     document.querySelectorAll(`input[name="${pageId}"]`).forEach(r => {
-      if (r.value === a) {
-        r.checked = true;
+      if (r.value === a) { r.checked = true;
         if (r.dataset.etc && answers[pageId + '_etc']) {
-          const w = document.getElementById(pageId + '_ew');
-          if (w) w.classList.add('show');
-          const t = document.getElementById(pageId + '_et');
-          if (t) t.value = answers[pageId + '_etc'];
+          const ew = document.getElementById(pageId + '_ew'); if (ew) ew.classList.add('show');
+          const et = document.getElementById(pageId + '_et'); if (et) et.value = answers[pageId + '_etc'];
         }
       }
     });
-  } else if (page.type === 'freetext') {
-    const t = document.getElementById(pageId + '_t');
-    if (t) t.value = a;
   } else if (page.type === 'datetime') {
-    const dt = document.getElementById(pageId + '_dt');
-    if (dt) {
-      dt.value = a;
-      if (a) dt.classList.add('has-value');
-    }
+    const dt = document.getElementById(pageId + '_dt'); if (dt) { dt.value = a; if (a) dt.classList.add('has-value'); }
+  } else if (page.type === 'address') {
+    if (answers[pageId + '_zip']) document.getElementById(pageId + '_zip').value = answers[pageId + '_zip'];
+    if (answers[pageId + '_addr']) document.getElementById(pageId + '_addr').value = answers[pageId + '_addr'];
+    if (a) document.getElementById(pageId + '_detail').value = a;
+  } else if (page.type === 'freetext') {
+    const t = document.getElementById(pageId + '_t'); if (t) t.value = a;
   }
 }
 
-function onChg(pageId) {
-  const page = PAGES[pageId];
-  if (page.type === 'radio') {
-    const ec = document.querySelector(`input[name="${pageId}"][data-etc="1"]`);
-    if (ec) {
-      const w = document.getElementById(pageId + '_ew');
-      if (ec.checked) w.classList.add('show');
-      else w.classList.remove('show');
-    }
+function isInlineTip(nx) {
+  const p = PAGES[nx];
+  return !!(p && p.type === 'info' && (p.next === 'END' || !p.next));
+}
 
-    // 선지 선택 시 버튼 텍스트 동적 업데이트
-    const checked = document.querySelector(`input[name="${pageId}"]:checked`);
-    if (checked) {
-      const nextId = checked.dataset.next;
-      const btn = document.getElementById('btnNext');
-      if (nextId === 'END') {
-        btn.innerHTML = `제출 완료 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>`;
-      } else {
-        btn.innerHTML = `다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
-      }
-    }
+function syncRadioUI(pageId) {
+  const page = PAGES[pageId];
+  if (!page || page.type !== 'radio') return;
+  const ec = document.querySelector(`input[name="${pageId}"][data-etc="1"]`);
+  if (ec) { const ew = document.getElementById(pageId + '_ew'); ec.checked ? ew.classList.add('show') : ew.classList.remove('show'); }
+  const checked = document.querySelector(`input[name="${pageId}"]:checked`);
+  const tipEl = document.getElementById(pageId + '_tip');
+  if (!checked) { if (tipEl) { tipEl.classList.remove('show'); tipEl.innerHTML = ''; } setNextLabel('다음'); return; }
+  const nx = checked.dataset.next;
+  if (isInlineTip(nx)) {
+    const tip = PAGES[nx];
+    if (tipEl) { tipEl.innerHTML = `<div class="inline-tip-head">${tip.text || ''}</div>` + fill(tip.info || ''); tipEl.classList.add('show'); }
+    setNextLabel('END');
+  } else {
+    if (tipEl) { tipEl.classList.remove('show'); tipEl.innerHTML = ''; }
+    setNextLabel(nx);
   }
-  const v = document.getElementById('val_' + pageId);
-  if (v) v.classList.remove('show');
+}
+
+// 선지 변경 시 디바운스 즉시 저장 (제출 전 이탈해도 마지막 선택 보존 / last-write-wins)
+let saveTimer = null;
+function scheduleSave(pageId) {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => immediateSave(pageId), 500);
+}
+function immediateSave(pageId) {
+  const page = PAGES[pageId];
+  if (!page || !page.qid) return;
+  const a = getAns(pageId);
+  if (a == null || a === '') return;
+  answers[pageId] = a;
+  saveData(page.qid, a, answers[pageId + '_etc']);
+}
+
+function onChg(pageId) {
+  if (PAGES[pageId].type === 'radio') syncRadioUI(pageId);
+  const v = document.getElementById('val_' + pageId); if (v) v.classList.remove('show');
+  scheduleSave(pageId);
+}
+function onDtChg(el, pageId) { el.value ? el.classList.add('has-value') : el.classList.remove('has-value'); onChg(pageId); }
+
+function openPostcode(pageId) {
+  if (typeof daum === 'undefined' || !daum.Postcode) { alert('주소 검색을 불러오지 못했어요. 잠시 후 다시 시도해주세요.'); return; }
+  new daum.Postcode({ oncomplete: function (data) {
+    document.getElementById(pageId + '_zip').value = data.zonecode;
+    document.getElementById(pageId + '_addr').value = data.roadAddress || data.jibunAddress;
+    document.getElementById(pageId + '_detail').focus();
+    onChg(pageId);
+  }}).open();
+}
+
+function setNextLabel(nextId) {
+  const btn = document.getElementById('btnNext');
+  if (nextId === 'END') btn.innerHTML = `제출 완료 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>`;
+  else if (nextId === 'CLASSIFY') btn.innerHTML = `해결 방법 찾기 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
+  else btn.innerHTML = `다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
 }
 
 function getAns(pageId) {
   const page = PAGES[pageId];
   if (page.type === 'radio') {
-    const c = document.querySelector(`input[name="${pageId}"]:checked`);
-    if (!c) return null;
+    const c = document.querySelector(`input[name="${pageId}"]:checked`); if (!c) return null;
     const ec = document.querySelector(`input[name="${pageId}"][data-etc="1"]:checked`);
-    if (ec) {
-      const t = document.getElementById(pageId + '_et');
-      if (t) answers[pageId + '_etc'] = t.value;
-    } else {
-      delete answers[pageId + '_etc'];
-    }
+    if (ec) { const t = document.getElementById(pageId + '_et'); if (t) answers[pageId + '_etc'] = t.value; }
+    else delete answers[pageId + '_etc'];
     return c.value;
   }
-  if (page.type === 'freetext') {
-    const t = document.getElementById(pageId + '_t');
-    return t ? t.value : null;
+  if (page.type === 'datetime') { const dt = document.getElementById(pageId + '_dt'); return dt ? dt.value : null; }
+  if (page.type === 'address') {
+    const zip = document.getElementById(pageId + '_zip').value;
+    const addr = document.getElementById(pageId + '_addr').value;
+    const detail = document.getElementById(pageId + '_detail').value;
+    answers[pageId + '_zip'] = zip; answers[pageId + '_addr'] = addr;
+    return detail;
   }
-  if (page.type === 'datetime') {
-    const dt = document.getElementById(pageId + '_dt');
-    return dt ? dt.value : null;
-  }
-  if (page.type === 'info') {
-    return 'Y'; // 정보 페이지는 그냥 봤다는 표시
-  }
+  if (page.type === 'freetext') { const t = document.getElementById(pageId + '_t'); return t ? t.value : null; }
+  if (page.type === 'info') return 'Y';
   return null;
 }
 
 function valPage(pageId) {
   const page = PAGES[pageId];
   if (page.type === 'info') return true;
-
   const a = getAns(pageId);
-  if (!a) {
-    const v = document.getElementById('val_' + pageId);
-    if (v) {
-      if (page.type === 'datetime') v.innerHTML = '⚠️ 날짜와 시간을 입력해 주세요';
-      else if (page.type === 'freetext') v.innerHTML = '⚠️ 답변을 입력해 주세요';
-      else v.innerHTML = '⚠️ 답변을 선택해 주세요';
-      v.classList.add('show');
-    }
-    return false;
+  const v = document.getElementById('val_' + pageId);
+  if (page.type === 'address') {
+    if (!answers[pageId + '_addr']) { v.innerHTML = '⚠️ 주소를 검색해 주세요'; v.classList.add('show'); return false; }
+    if (!a || !a.trim()) { v.innerHTML = '⚠️ 상세주소를 입력해 주세요'; v.classList.add('show'); return false; }
+    return true;
   }
-
-  // 기타 선택 시 직접 입력 필수
+  if (!a) {
+    if (page.type === 'datetime') v.innerHTML = '⚠️ 날짜와 시간을 입력해 주세요';
+    else if (page.type === 'freetext') v.innerHTML = '⚠️ 답변을 입력해 주세요';
+    else v.innerHTML = '⚠️ 답변을 선택해 주세요';
+    v.classList.add('show'); return false;
+  }
   if (page.type === 'radio' && a === '기타') {
     const t = document.getElementById(pageId + '_et');
-    if (t && !t.value.trim()) {
-      const v = document.getElementById('val_' + pageId);
-      v.innerHTML = '⚠️ 기타 항목을 입력해 주세요';
-      v.classList.add('show');
-      return false;
-    }
+    if (t && !t.value.trim()) { v.innerHTML = '⚠️ 기타 항목을 입력해 주세요'; v.classList.add('show'); return false; }
   }
   return true;
 }
 
-// ═══════════════════════════════════════════════
-//  다음 페이지 결정
-// ═══════════════════════════════════════════════
 function getNextPageId(pageId) {
   const page = PAGES[pageId];
-  if (page.type === 'radio') {
-    const c = document.querySelector(`input[name="${pageId}"]:checked`);
-    return c ? c.dataset.next : null;
-  }
+  if (page.type === 'radio') { const c = document.querySelector(`input[name="${pageId}"]:checked`); return c ? c.dataset.next : null; }
   return page.next || null;
 }
 
-// ═══════════════════════════════════════════════
-//  네비게이션
-// ═══════════════════════════════════════════════
-function startSurvey() {
-  hide('step-intro');
-  document.getElementById('nav').style.display = 'block';
-  currentPageId = '2';
-  history.length = 0;
-  history.push('2');
-  saveData('_SESSION_START', new Date().toISOString());
-  renderPage(currentPageId);
-}
-
-function goNext() {
+// ═══════════ 네비게이션 ═══════════
+async function goNext() {
   if (!valPage(currentPageId)) return;
   const page = PAGES[currentPageId];
   const a = getAns(currentPageId);
   answers[currentPageId] = a;
 
-  // 데이터 저장
-  saveData(page.qid, a, answers[currentPageId + '_etc']);
-
-  // CRM 트리거 (페이지 단위)
+  if (page.qid) saveData(page.qid, a, answers[currentPageId + '_etc']);
+  if (page.type === 'address') {
+    saveData('우편번호', answers[currentPageId + '_zip']);
+    saveData('도로명주소', answers[currentPageId + '_addr']);
+    saveData('상세주소', a);
+    saveData('지류쿠폰', '신청');
+  }
   if (page.triggerCRM) saveData('점주CRM', 'Y');
-
-  // 선지의 trigger / needsCS 처리 (선지 단위)
+  if (page.trigger) saveData(page.trigger, 'Y');
   if (page.type === 'radio') {
     const checked = document.querySelector(`input[name="${currentPageId}"]:checked`);
     if (checked) {
-      const selectedOpt = page.options.find(o => o.label === checked.value);
-      if (selectedOpt) {
-        if (selectedOpt.trigger) saveData(selectedOpt.trigger, 'Y');
-        if (selectedOpt.needsCS) needsCS = true;
-      }
+      const opt = page.options.find(o => (o.value || o.label) === checked.value);
+      if (opt) { if (opt.trigger) saveData(opt.trigger, 'Y'); if (opt.needsCS) needsCS = true; }
     }
   }
 
-  // 다음 페이지
-  const nextId = getNextPageId(currentPageId);
-  if (nextId === 'END' || !nextId) {
-    showEnd();
-    return;
+  let nextId = getNextPageId(currentPageId);
+  const directNext = nextId;
+
+  if (nextId === 'CLASSIFY') {
+    const etc = answers[currentPageId + '_etc'] || '';
+    const btn = document.getElementById('btnNext');
+    btn.disabled = true; btn.innerHTML = '분석 중...';
+    const category = await classifyEtc(etc);
+    btn.disabled = false;
+    saveData('AI분류', category);
+    nextId = (CATEGORY_MAP[version] && CATEGORY_MAP[version][category]) || 'END';
   }
+
+  // 인라인 꿀팁으로 이미 보여준 종착 선지: 별도 페이지 없이 바로 제출 (트리거만 발화)
+  if (directNext === nextId && isInlineTip(nextId)) {
+    const tip = PAGES[nextId];
+    if (tip.qid) saveData(tip.qid, 'Y');
+    if (tip.triggerCRM) saveData('점주CRM', 'Y');
+    if (tip.trigger) saveData(tip.trigger, 'Y');
+    nextId = 'END';
+  }
+
+  if (nextId === 'END' || !nextId) { showEnd(); return; }
   currentPageId = nextId;
   history.push(currentPageId);
   renderPage(currentPageId);
@@ -1068,11 +767,11 @@ function goNext() {
 
 function goPrev() {
   if (history.length <= 1) {
-    // 인트로로 복귀
-    hide('step-end');
-    document.getElementById('qWrap').innerHTML = '';
-    document.getElementById('nav').style.display = 'none';
-    document.getElementById('step-intro').classList.add('active');
+    if (SURVEY.intro) {
+      document.getElementById('qWrap').innerHTML = '';
+      document.getElementById('nav').style.display = 'none';
+      document.getElementById('step-intro').classList.add('active');
+    }
     return;
   }
   history.pop();
@@ -1085,86 +784,98 @@ function showEnd() {
   document.getElementById('step-end').classList.add('active');
   document.getElementById('nav').style.display = 'none';
   document.getElementById('prog').style.width = '100%';
-
-  // 모든 종료 화면에서 고객센터 안내 항상 표시
   document.getElementById('cs-notice').classList.add('show');
-
   saveData('_SESSION_END', new Date().toISOString());
-  window.scrollTo({top: 0, behavior: 'smooth'});
+  scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function updateBtn(page) {
-  const btn = document.getElementById('btnNext');
-  const isEnd = (page.next === 'END') || (page.options && page.options.every(o => o.next === 'END'));
-  // 마지막 페이지(정보만, freetext, datetime)이고 next가 END면 '제출'로 표시
-  if (page.type === 'info' || ((page.type === 'freetext' || page.type === 'datetime') && page.next === 'END')) {
-    btn.innerHTML = `제출 완료 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>`;
-  } else if (page.type === 'radio' && page.options.some(o => o.next === 'END')) {
-    btn.innerHTML = `다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
+  if (page.type === 'info' || page.next === 'END') setNextLabel('END');
+  else setNextLabel('다음');
+}
+function updateProg() { document.getElementById('prog').style.width = Math.min((history.length / 5) * 100, 95) + '%'; }
+
+// ═══════════ 기타 분류 (AI 우선, 키워드 폴백) ═══════════
+async function classifyEtc(text) {
+  if (!text || !text.trim()) return '기타';
+  if (APPS_SCRIPT_URL) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 6000);
+      const url = APPS_SCRIPT_URL + '?action=classify&version=' + encodeURIComponent(version) + '&text=' + encodeURIComponent(text);
+      const r = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(timer);
+      const j = await r.json();
+      if (j && j.category) return j.category;
+    } catch (e) {}
+  }
+  return keywordClassify(text);
+}
+
+function keywordClassify(t) {
+  const s = t.toLowerCase();
+  const has = (...ks) => ks.some(k => s.includes(k));
+  if (has('영수증') && has('안 받', '안받', '거절', '싫어', '안 가져', '안가져')) return '영수증형태';
+  if (has('종이', '지류', '용지', '용지값', '종이값', '눈치')) return '영수증형태';
+  if (version === 'a') {
+    if (has('까먹', '잊', '깜빡')) return '깜빡';
+    if (has('귀찮', '번거', '매번', '바빠')) return '번거로움';
+    if (has('안 나눠', '안나눠', '못 나눠', '못나눠', '안 줬', '안줬')) return '안나눔';
+    if (has('거절', '안 받', '안받')) return '거절';
+    if (has('주문', '참여', '안 해', '안해')) return '미참여';
+    if (has('첫 주문', '대상', '단골', '이미 쓰', '손님이 적', '손님 없')) return '대상부족';
+    if (has('그만', '퇴사', '관둠', '관뒀', '그만뒀', '근무 안', '근무안')) return '근무중단';
+    return '기타';
   } else {
-    btn.innerHTML = `다음 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
+    if (has('안 나눠', '안나눠', '못 나눠', '못나눠', '안 줬', '안줬')) return '안나눔';
+    if (has('거절', '안 받', '안받', '싫다')) return '거절';
+    if (has('주문', '참여', '안 해', '안해')) return '미참여';
+    if (has('첫 주문', '대상', '단골', '이미 쓰', '손님이 적', '손님 없')) return '대상부족';
+    if (has('그만', '퇴사', '관둠', '관뒀', '그만뒀', '근무 안', '근무안')) return '근무중단';
+    return '기타';
   }
 }
 
-function updateProg() {
-  // 대략적인 진행도 (히스토리 길이 기반)
-  const maxSteps = 5;
-  const pct = Math.min((history.length / maxSteps) * 100, 95);
-  document.getElementById('prog').style.width = pct + '%';
-}
-
-function hide(id) { document.getElementById(id).classList.remove('active'); }
-
-// ═══════════════════════════════════════════════
-//  저장
-// ═══════════════════════════════════════════════
-async function saveData(qid, answer, etcText) {
+// ═══════════ 저장 (fire-and-forget) ═══════════
+function saveData(qid, answer, etcText) {
+  if (!APPS_SCRIPT_URL) return;
   const payload = {
-    sessionId: sid,
-    phone: phone,
-    code: code,
-    channel: channel,
-    nickname: nickname,
-    store: store,
+    sessionId: sid, version, channel, nickname, store, code, phone,
     questionId: qid,
     answer: Array.isArray(answer) ? answer.join(', ') : (answer || ''),
     etcText: etcText || '',
     timestamp: new Date().toISOString()
   };
-
-  if (!APPS_SCRIPT_URL) return;
-
   try {
     const data = JSON.stringify(payload);
-
-    // 1순위: sendBeacon (페이지 이동/백그라운드 진입 시에도 전송 보장)
     if (navigator.sendBeacon) {
-      const blob = new Blob([data], {type: 'text/plain;charset=utf-8'});
-      const ok = navigator.sendBeacon(APPS_SCRIPT_URL, blob);
+      const ok = navigator.sendBeacon(APPS_SCRIPT_URL, new Blob([data], { type: 'text/plain;charset=utf-8' }));
       if (ok) return;
     }
-
-    // 2순위: fetch + keepalive (sendBeacon 실패 시 fallback)
-    fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {'Content-Type': 'text/plain;charset=utf-8'},
-      body: data,
-      keepalive: true
-    });
-  } catch(e) {}
+    fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: data, keepalive: true });
+  } catch (e) {}
 }
 
-// 키보드
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) {
-    if (document.activeElement && (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.type === 'datetime-local')) return;
-    if (document.getElementById('nav').style.display !== 'none') {
-      e.preventDefault();
-      goNext();
-    }
+    if (document.activeElement && (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.type === 'datetime-local' || document.activeElement.classList.contains('addr-input'))) return;
+    if (document.getElementById('nav').style.display !== 'none') { e.preventDefault(); goNext(); }
   }
 });
+</script>
+
+<!-- 카카오톡 채널 SDK -->
+<script>
+  window.kakaoAsyncInit = function () { Kakao.Channel.createAddChannelButton({ container: '#kakao-talk-channel-add-button' }); };
+  (function (d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = 'https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.channel.min.js';
+    js.integrity = 'sha384-8oNFBbAHWVovcMLgR+mLbxqwoucixezSAzniBcjnEoumhfIbMIg4DrVsoiPEtlnt';
+    js.crossOrigin = 'anonymous';
+    fjs.parentNode.insertBefore(js, fjs);
+  })(document, 'script', 'kakao-js-sdk');
 </script>
 </body>
 </html>
