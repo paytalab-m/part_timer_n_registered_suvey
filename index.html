@@ -169,7 +169,7 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFo
 </div></div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxH8hBkGXdU0-msHt6aof9TWAj7BCrzDwH6Vg0x7B3dXN3pi6c_Ln__r65mP9VdpPT_/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGiTBL7hSjQ-K6Ozk83WRiyAM0E1aeCNGV6JjKL2aoVMCluEpVOXMmNFW7_XVoQDBs/exec';
 
 const sid = 'S_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
 const p = new URLSearchParams(location.search);
@@ -215,7 +215,7 @@ const SHARED = {
 const FUNNEL = {
   // ── Q1-2 (공통): 손님 전달 어디서 막혔는지 ──
   'FN-Q': {
-    num: 'Q1-2', qid: 'Q1', type: 'radio',
+    num: 'Q1-2', qid: 'Q1-2', type: 'radio',
     text: '구체적으로 어떤 상황에 가장 가까우세요?',
     options: [
       { label: '출력은 했지만 손님에게 나눠주지는 않았어요', next: 'FN-distribute' },
@@ -434,7 +434,7 @@ const SURVEYS = {
         { label:'더 이상 이 매장에서 근무하지 않아요', next:'END', trigger:'종료처리' },
         { label:'기타', next:'CLASSIFY' }
       ]},
-      'A-Q1a': { num:'Q1-1', qid:'Q1', type:'radio', text:'구체적인 이유를 선택해주세요.', options:[
+      'A-Q1a': { num:'Q1-1', qid:'Q1-1', type:'radio', text:'구체적인 이유를 선택해주세요.', options:[
         { label:'자꾸 잊어버리게 돼서 (출근하면 깜빡함)', next:'A-remind' },
         { label:'매번 출력하는 게 번거롭고 귀찮아서', next:'A-bulkprint' },
         { label:'영수증 용지 값 때문에 못 뽑겠어요', next:'PAPER' },
