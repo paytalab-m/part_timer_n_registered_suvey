@@ -233,6 +233,7 @@ function resolveVersion() {
 // ═══════════ 결과(솔루션) 정의 — 제출 후 로딩→결과 화면에 표시 (미시작 a/b) ═══════════
 const RESULTS = {
   'R-generic': { noBadge:true, icon:'🙌', title:'소중한 답변 감사해요!', html:`<div class="info-block">남겨주신 내용을 바탕으로 {{nickname}}님께 도움이 될 방법을 찾아볼게요.</div>` },
+  'R-decline': { icon:'🙌', title:'언제든 다시 찾아주세요!', html:`<div class="info-block">지금은 받지 않으셔도 괜찮아요. 그래도 영수증 쿠폰을 손님께 꾸준히 나눠주시면 성과가 생길 수 있어요. 도움이 필요하시면 언제든 알려주세요!</div>` },
   'R-remind-print': { icon:'⏰', title:'출력 리마인드를 보내드릴게요!', html:`<div class="info-block">선택하신 날짜·시간에 맞춰 <strong>"오늘 출근하면 영수증 쿠폰 출력하기"</strong> 리마인드 메시지를 보내드릴게요. 까먹지 않게 도와드릴게요!</div>` },
   'R-remind-bulk': { icon:'⏰', title:'미리 많이 뽑는 걸 리마인드할게요!', html:`<div class="tip-box"><div class="tip-head">💡 이렇게 해보세요!</div>매번 1매씩 출력하는 게 아니라, 미리 <strong>30~50매</strong>를 뽑아두고 손님에게 나눠주시면 훨씬 편해요!</div><div class="info-block">선택하신 날짜에 <strong>'출근하면 영수증 쿠폰 30~50매 미리 뽑아두기'</strong>를 리마인드해드릴게요.</div>` },
   'R-remind-distribute': { icon:'⏰', title:'나눠주기 리마인드를 보내드릴게요!', html:`<div class="info-block">선택하신 날짜·시간에 맞춰 <strong>"오늘 출근하면 손님에게 영수증 쿠폰 나눠주기"</strong> 리마인드를 보내드릴게요!</div>` },
@@ -260,7 +261,7 @@ const SHARED = {
     info:`<div class="info-block">똑같은 혜택의 <strong>종이 쿠폰</strong>을 무료로 보내드릴 수 있어요. 영수증 쿠폰보다 시각적으로 쿠폰 형태에 가깝고, 작은 사이즈라 손님에게 전달하기 좋아요. 받아서 손님께 나눠주시기만 하면 돼요!</div><div class="img-slot"><img src="images/promo_paper.png" alt="종이 쿠폰 예시" onerror="this.style.display='none'"><span class="img-slot-label">📷 종이 쿠폰 예시 이미지</span></div>`,
     options:[
       { label:'네, 종이 쿠폰으로 받아볼게요', value:'신청', next:'ADDRESS' },
-      { label:'아니요, 괜찮아요', value:'미신청', next:'R-generic' }
+      { label:'아니요, 괜찮아요', value:'미신청', next:'R-decline' }
     ]
   },
   'ADDRESS': {
@@ -275,7 +276,7 @@ const SHARED = {
     options:[
       { label:'종이 쿠폰', desc:'영수증 쿠폰보다 시각적으로 쿠폰 형태에 가깝고, 작은 사이즈라 손님에게 전달하기 좋아요.', img:'images/promo_paper.png', next:'ADDRESS' },
       { label:'개별 QR코드가 있는 A4 홍보물', desc:'영수증 쿠폰보다 첫 주문 혜택과 참여 방법이 자세히 안내되어 있어, 손님께 안내하기 편해요. 매장에 붙여두고 QR 인식만 요청하면 돼요.', img:'images/promo_a4.png', next:'R-a4' },
-      { label:'받고 싶지 않아요', value:'거부', next:'R-generic' },
+      { label:'받고 싶지 않아요', value:'거부', next:'R-decline' },
       { label:'기타', next:'R-generic' }
     ]
   },
@@ -286,7 +287,7 @@ const SHARED = {
     info:`<div class="info-block"><strong>개별 QR코드가 있는 A4 홍보물</strong>은 첫 주문 혜택과 참여 방법을 손님이 한눈에 볼 수 있게 정리한 포스터예요. 영수증 쿠폰보다 설명이 자세해 안내하기 편하고, 매장에 붙여두고 손님에게 QR 인식만 요청하면 돼요.</div><div class="img-slot"><img src="images/a4_sample.png" alt="A4 홍보물 예시" onerror="this.style.display='none'"><span class="img-slot-label">📷 A4 홍보물 예시 이미지</span></div>`,
     options:[
       { label:'네, 받아볼게요', value:'신청', next:'R-a4' },
-      { label:'아니요, 괜찮아요', value:'미신청', next:'R-generic' }
+      { label:'아니요, 괜찮아요', value:'미신청', next:'R-decline' }
     ]
   },
   // 영수증 형태 선택 (미참여 - 앱 번거로움 → )
@@ -869,6 +870,9 @@ async function goNext() {
     nextId = (CATEGORY_MAP[version] && CATEGORY_MAP[version][category]) || (version === 'u' ? 'END' : 'R-generic');
   }
 
+  // A4 홍보물 신청(PROMO·A4_OFFER 어느 경로든) → 신청 플래그 기록 (지류쿠폰과 대칭)
+  if (nextId === 'R-a4') saveData('A4신청', '신청');
+
   // 미등록(u): 기존 동작 — 정보 페이지는 그대로 렌더, 종료는 일반 완료 화면
   if (version === 'u') {
     if (nextId === 'END' || !nextId) { showEnd(); return; }
@@ -927,8 +931,36 @@ function finishFlow(resultKey) {
   }, 3000);
 }
 
+// 거부(안 받음) 시 보여줄 맞춤 설득 카피
+const DECLINE = {
+  cost: { icon:'💡', title:`영수증 용지 값 부담은<br>생각보다 작을 수 있어요`, html:`<div class="info-block">영수증 쿠폰 1장을 출력하는 비용은 매우 적은 수준이에요.<br><br>반면 손님이 쿠폰으로 첫 주문을 1번만 해도 <strong>{{nickname}}님께는 1,500원의 추가 시급</strong>이 적립돼요.<br><br>쿠폰 여러 장을 출력하더라도 손님 1명만 주문하면 충분히 더 큰 가치가 생기는 구조예요.<br><br>부담되신다면 다음 근무 때 <strong>하루 5장만 먼저 출력해서</strong> 나눠보시는 걸 추천드려요.</div>` },
+  owner: { icon:'🤝', title:`사장님 눈치가 보이셨다면<br>이렇게 생각해보셔도 좋아요`, html:`<div class="info-block">영수증 쿠폰은 단순히 종이를 쓰는 활동이 아니라, <strong>매장 신규 고객을 늘리기 위한 활동</strong>이에요.<br><br>손님이 쿠폰을 통해 첫 주문을 하면 {{nickname}}님은 추가 시급을 받고, 매장은 새로운 고객을 얻을 수 있어요.<br><br>사장님께서 직접 출력하지 말라고 하신 상황이 아니라면 너무 부담 갖지 않으셔도 괜찮아요.<br><br>처음에는 <strong>소량만 출력해서</strong> 자연스럽게 시작해보세요.</div>` },
+  shape: { icon:'🧾', title:`영수증이라 부담스러워 보인다면<br>말을 짧게 바꿔보세요`, html:`<div class="info-block">손님에게 길게 설명하려고 하면 오히려 부담스러워질 수 있어요.<br><br>다음에는 쿠폰을 건네면서 딱 한 문장만 말해보세요.<br><br><strong>"첫 주문 1,000원 할인 쿠폰이에요."</strong><br><br>영수증이라고 설명하기보다, 손님이 바로 이해할 수 있는 혜택만 짧게 말하는 게 좋아요.</div>` },
+  benefit: { icon:'🎯', title:`혜택이 잘 안 와닿았다면<br>첫 문장을 바꿔보세요`, html:`<div class="info-block">손님은 쿠폰의 구조보다 <strong>내가 얼마를 아끼는지</strong>를 먼저 궁금해해요.<br><br>그래서 "패스오더 이벤트예요"보다<br><br><strong>"첫 주문하면 1,000원 할인돼요."</strong><br><br>처럼 바로 혜택을 말하는 게 좋아요.<br><br>짧게 전달하면 바쁜 손님도 부담 없이 받아갈 가능성이 높아져요.</div>` },
+  busy: { icon:'⚡', title:`바쁜 손님에게는<br>설명보다 한마디가 좋아요`, html:`<div class="info-block">바쁜 시간대에는 자세히 설명하려고 하면 손님도 부담스러워할 수 있어요.<br><br>이럴 때는 계산 후 쿠폰을 건네며<br><br><strong>"첫 주문 할인 쿠폰 같이 드릴게요."</strong><br><br>정도로만 말해도 충분해요.<br><br>모든 손님을 설득하려고 하기보다, 일단 자연스럽게 전달하는 걸 목표로 해보세요.</div>` },
+  pos: { icon:'🖨️', title:`출력이 어려운 매장이라면<br>다른 방식도 같이 확인해볼게요`, html:`<div class="info-block">매장 POS나 프린터 환경 때문에 영수증 출력이 어려울 수 있어요.<br><br>이 경우 패스오더 알바지원팀에서 매장 상황을 확인해보고, 가능한 참여 방법이 있는지 살펴볼게요.<br><br>추가로 도움이 필요하시면 아래 고객센터로 문의해주세요.</div>` },
+  error: { icon:'🛠️', title:`출력이 이상하게 됐다면<br>프린터 상태 확인이 필요해요`, html:`<div class="info-block">QR코드가 깨지거나 글자가 밀려 나오면 손님이 참여하기 어려울 수 있어요.<br><br>프린터 용지 정렬, 출력 농도, POS 프로그램 상태를 한 번 확인해보는 게 좋아요.<br><br>계속 이상하게 출력된다면 패스오더 알바지원팀으로 문의해주세요. 확인 후 도와드릴게요.</div>` },
+  give: { icon:'🙌', title:`직접 건네기 어색하다면<br>짧게만 말해도 괜찮아요`, html:`<div class="info-block">손님에게 길게 설명하려고 하면 더 어색해질 수 있어요.<br><br>처음에는 계산 후 쿠폰을 건네며<br><br><strong>"첫 주문 할인 쿠폰 같이 드릴게요."</strong><br><br>이 한마디만 해도 충분해요.<br><br>익숙해질 때까지는 하루 3~5명에게만 먼저 시도해보세요.</div>` }
+};
+
+// 거부(안 받음) 시: 직전에 고른 이유를 근거로 맞춤 설득 결과 생성
+function declineResult() {
+  const rp = history[history.length - 2];
+  const reason = (rp && answers[rp]) || '';
+  const has = (...ks) => ks.some(k => reason.includes(k));
+  if (has('용지')) return DECLINE.cost;
+  if (has('눈치')) return DECLINE.owner;
+  if (has('POS', '되지 않는', '안 되는')) return DECLINE.pos;
+  if (has('이상')) return DECLINE.error;
+  if (has('형태')) return DECLINE.shape;
+  if (has('한눈', '와닿', '할인 혜택', '잘 모')) return DECLINE.benefit;
+  if (has('바쁘', '관심')) return DECLINE.busy;
+  if (has('부담', '어색')) return DECLINE.give;
+  return { noBadge:true, icon:'🙌', title:'언제든 다시 찾아주세요!', html:RESULTS['R-decline'].html };
+}
+
 function renderResult(key) {
-  const r = RESULTS[key] || RESULTS['R-generic'];
+  const r = (key === 'R-decline') ? declineResult() : (RESULTS[key] || RESULTS['R-generic']);
   if (r.trigger) saveData(r.trigger, 'Y');
   if (r.triggerCRM) saveData('점주CRM', 'Y');
   let prefix = '';
