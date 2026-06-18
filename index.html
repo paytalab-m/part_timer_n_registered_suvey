@@ -656,8 +656,8 @@ function renderPage(pageId) {
   let h = `<div class="card">`;
   const qnum = (version === 'u') ? page.num : ('Q' + history.length);
   if (qnum) h += `<div class="q-num">${qnum}</div>`;
-  h += `<div class="q-text">${page.text.replace(/\n/g, '<br>')}</div>`;
-  if (page.hint) h += `<div class="q-hint">${page.hint}</div>`;
+  h += `<div class="q-text">${fill(page.text).replace(/\n/g, '<br>')}</div>`;
+  if (page.hint) h += `<div class="q-hint">${fill(page.hint)}</div>`;
   h += `<div class="q-gap"></div>`;
   if (page.info) h += fill(page.info);
 
