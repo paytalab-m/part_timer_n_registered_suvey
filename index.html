@@ -711,7 +711,7 @@ function showGateResult() {
     return `<div class="gate-check ${fail ? 'fail' : 'done'}"><span class="gate-check-ic ${fail ? 'x' : 'ok'}">${fail ? '✕' : '✓'}</span><span class="gate-check-tx">${GATE_NUM[i]} ${GATE_DONE[i]}${fail ? ' — 확인되지 않음' : ' 확인 완료'}</span></div>`;
   }).join('');
   document.getElementById('gateCard').innerHTML =
-    `<div class="result-head"><span class="result-icon">🧾</span></div><div class="result-title">${fill('{{nickname}}님은 아직<br>미지급된 리워드가 없어요')}</div><div class="gate-checks gate-checks-result">${checksHtml}</div><div class="info-block" style="text-align:center">미지급 리워드를 받으려면 <strong>④ 영수증 쿠폰으로 손님이 참여</strong> 항목에 대한 ${fill('{{nickname}}')}님의 활동 점검이 필요해요.<br><br>아래에서 바로 점검하고 {{nickname}}님 맞춤 솔루션을 확인해보세요!</div><button class="gate-btn" onclick="startGateSurvey()">활동 점검하기 →</button>`.replace(/\{\{nickname\}\}/g, nickname || '');
+    `<div class="result-head"><span class="result-icon">🧾</span></div><div class="result-title">${fill('{{nickname}}님은 아직<br>미지급된 리워드가 없어요')}</div><div class="gate-checks gate-checks-result">${checksHtml}</div><div class="info-block" style="text-align:center">미지급 리워드를 받으려면 <br><strong>④ 영수증 쿠폰으로 손님이 참여</strong> 항목에 대한 <br>${fill('{{nickname}}')}님의 활동 점검이 필요해요.<br><br>아래에서 바로 점검하고 {{nickname}}님 <br>맞춤 솔루션을 확인해보세요!</div><button class="gate-btn" onclick="startGateSurvey()">활동 점검하기 →</button>`.replace(/\{\{nickname\}\}/g, nickname || '');
   scrollTo({ top: 0, behavior: 'smooth' });
 }
 
