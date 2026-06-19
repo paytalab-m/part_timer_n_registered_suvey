@@ -399,8 +399,21 @@ const SHARED = {
     text:'출력 시 어떤 문제가 있었나요?',
     options:[
       { label:'영수증 출력이 되지 않는 POS기를 쓰고 있어요', next:'PROMO' },
-      { label:'출력은 했는데 이상하게 출력됐어요 (QR코드 오류, 글자 밀림 등)', next:'PROMO' },
+      { label:'출력은 했는데 이상하게 출력됐어요 (QR코드 오류, 글자 밀림 등)', next:'OUT-glitch' },
       { label:'기타', next:'PROMO' }
+    ]
+  },
+  // 이상 출력 사례 선택 (출력은 됐는데 이상한 경우 → 사례 선택 후 홍보수단 제안)
+  'OUT-glitch': {
+    qid:'이상출력유형', type:'radio',
+    text:'영수증이 어떻게 이상하게 출력됐나요?',
+    hint:'가장 비슷한 경우를 선택해주세요.',
+    options:[
+      { label:'영수증 글자 자체가 깨져서 나와요', img:'images/print_garbled.png', next:'PROMO' },
+      { label:'QR코드는 나오는데 인식이 어려워요 (간격이 좁거나 너무 작아요)', img:'images/print_qr_small.png', next:'PROMO' },
+      { label:'QR코드 자리에 QR코드가 아니라 다른 글자가 나와요', next:'PROMO' },
+      { label:'QR코드 인식은 되는데, 아메리카노 100원 쿠폰 페이지가 아닌 다른 페이지로 이동해요', next:'PROMO' },
+      { label:'기타', etcPlaceholder:'어떤 증상인지, (QR 인식 시) 어떤 페이지로 이동하는지 적어주세요', next:'PROMO' }
     ]
   },
   // 나눠준 수량 → 나눠줬음에도 못 받은 이유
@@ -774,7 +787,7 @@ function renderPage(pageId) {
       if (o.pros) h += `<div class="opt-pros">${o.pros}</div>`;
       if (o.img) h += `<div class="img-slot"><img src="${o.img}" alt="${o.label}" onerror="this.style.display='none'"><span class="img-slot-label">📷 ${o.label} 이미지</span></div>`;
       h += `</div></label></div>`;
-      if (isE) h += `<div class="etc-wrap" id="${pageId}_ew"><textarea class="etc-ta" id="${pageId}_et" placeholder="직접 입력해 주세요..." oninput="onChg('${pageId}')"></textarea></div>`;
+      if (isE) h += `<div class="etc-wrap" id="${pageId}_ew"><textarea class="etc-ta" id="${pageId}_et" placeholder="${o.etcPlaceholder || '직접 입력해 주세요...'}" oninput="onChg('${pageId}')"></textarea></div>`;
     });
     h += `</div>`;
   } else if (page.type === 'datetime') {
