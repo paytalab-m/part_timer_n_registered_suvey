@@ -169,6 +169,7 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFo
 @keyframes ingdots{0%{content:''}25%{content:'.'}50%{content:'..'}75%,100%{content:'...'}}
 /* 미지급 리워드 확인 게이트 */
 .gate-card{text-align:center;padding:56px 26px}
+.gate-card.gc-result{padding-top:28px}
 .gate-icon{font-size:50px;display:block;margin-bottom:22px;animation:gatePulse 1.2s ease-in-out infinite}
 @keyframes gatePulse{0%,100%{transform:scale(1);opacity:.82}50%{transform:scale(1.12);opacity:1}}
 .gate-title{font-size:18px;font-weight:800;line-height:1.6;letter-spacing:-.03em;margin-bottom:40px;word-break:keep-all;color:var(--brown)}
@@ -684,7 +685,7 @@ function loadVersion(v) {
     showGate();
   } else {
     document.getElementById('nav').style.display = 'block';
-    saveData('_SESSION_START', new Date().toISOString());
+    saveData('_SESSION_START', kstStamp());
     renderPage(currentPageId);
   }
 }
@@ -695,6 +696,8 @@ function loadVersion(v) {
 const GATE_CHECKS = ['시급 2배 챌린지 참여자인지 확인', '참여 코드를 등록했는지 확인', '영수증 쿠폰을 출력했는지 확인', '영수증 쿠폰으로 손님이 참여했는지 확인'];
 const GATE_DONE = ['시급 2배 챌린지 참여자', '참여 코드 등록', '영수증 쿠폰 출력', '영수증 쿠폰으로 손님 참여'];
 const GATE_NUM = ['①', '②', '③', '④'];
+// 채널에 'no_print' 포함 시 ③(영수증 출력)·④(손님 참여) 모두 미확인, 아니면 ④만
+const GATE_FAIL_IDX = channel.includes('no_print') ? [2, 3] : [3];
 
 function showGate() {
   document.getElementById('nav').style.display = 'none';
@@ -706,7 +709,7 @@ function showGate() {
     `<span class="gate-icon">🔍</span><div class="gate-title">${fill('{{nickname}}님의 미지급 리워드를<br>확인하고 있어요')}</div><div class="gate-checks">${checksHtml}</div>`;
   document.getElementById('step-gate').classList.add('active');
   scrollTo({ top: 0, behavior: 'smooth' });
-  [0, 1, 2].forEach((i, idx) => {
+  GATE_CHECKS.map((_, i) => i).filter(i => !GATE_FAIL_IDX.includes(i)).forEach((i, idx) => {
     setTimeout(() => {
       const gc = document.getElementById('gc' + i); if (!gc) return;
       gc.classList.add('done');
@@ -720,11 +723,12 @@ function showGate() {
 
 function showGateResult() {
   const checksHtml = GATE_CHECKS.map((c, i) => {
-    const fail = (i === 3);
+    const fail = GATE_FAIL_IDX.includes(i);
     return `<div class="gate-check ${fail ? 'fail' : 'done'}"><span class="gate-check-ic ${fail ? 'x' : 'ok'}">${fail ? '✕' : '✓'}</span><span class="gate-check-tx">${GATE_NUM[i]} ${GATE_DONE[i]}${fail ? ' — 확인되지 않음' : ' 확인 완료'}</span></div>`;
   }).join('');
   document.getElementById('gateCard').innerHTML =
-    `<div class="result-head"><span class="result-icon">🧾</span></div><div class="result-title">${fill('{{nickname}}님은 아직<br>미지급된 리워드가 없어요')}</div><div class="gate-checks gate-checks-result">${checksHtml}</div><div class="info-block" style="text-align:center">미지급 리워드를 받으려면 <br><strong>④ 영수증 쿠폰으로 손님이 참여</strong> 항목에 대한 <br>${fill('{{nickname}}')}님의 활동 점검이 필요해요.<br><br>아래에서 바로 점검하고 {{nickname}}님 <br>맞춤 솔루션을 확인해보세요!</div><button class="gate-btn" onclick="startGateSurvey()">활동 점검하기 →</button>`.replace(/\{\{nickname\}\}/g, nickname || '');
+    `<div class="result-title">${fill('{{nickname}}님은 아직<br>미지급된 리워드가 없어요')}</div><div class="gate-checks gate-checks-result">${checksHtml}</div><div class="info-block" style="text-align:center">미지급 리워드를 받으려면 <br><strong>${GATE_FAIL_IDX.map(i => GATE_NUM[i] + ' ' + GATE_DONE[i]).join(', ')}</strong> 항목에 대한 <br>${fill('{{nickname}}')}님의 활동 점검이 필요해요.<br><br>아래에서 바로 점검하고 {{nickname}}님 <br>맞춤 솔루션을 확인해보세요!</div><button class="gate-btn" onclick="startGateSurvey()">활동 점검하기 →</button>`.replace(/\{\{nickname\}\}/g, nickname || '');
+  document.getElementById('gateCard').classList.add('gc-result');
   scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -733,8 +737,8 @@ function startGateSurvey() {
   document.getElementById('abBanner').classList.add('show');
   document.getElementById('nav').style.display = 'block';
   history = [SURVEY.start]; currentPageId = SURVEY.start;
-  saveData('_GATE_START', new Date().toISOString());
-  saveData('_SESSION_START', new Date().toISOString());
+  saveData('_GATE_START', kstStamp());
+  saveData('_SESSION_START', kstStamp());
   renderPage(currentPageId);
 }
 
@@ -754,7 +758,7 @@ function startSurvey() {
   document.getElementById('step-intro').classList.remove('active');
   document.getElementById('nav').style.display = 'block';
   history = [SURVEY.start]; currentPageId = SURVEY.start;
-  saveData('_SESSION_START', new Date().toISOString());
+  saveData('_SESSION_START', kstStamp());
   renderPage(currentPageId);
 }
 
@@ -1022,13 +1026,13 @@ function showEnd() {
   document.getElementById('cs-notice').classList.add('show');
   document.getElementById('resultSlot').innerHTML = `<div class="result-head"><span class="result-icon">🎉</span></div><div class="result-title">제출이 완료되었어요!</div><div class="result-body" style="text-align:center">소중한 시간 내어 답변해 주셔서 감사합니다.</div>`;
   document.getElementById('threadsSlot').innerHTML = renderThreadsContent();
-  saveData('_SESSION_END', new Date().toISOString());
+  saveData('_SESSION_END', kstStamp());
   scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // 미시작(a/b): 제출 → 로딩 → 결과(솔루션) 화면
 function finishFlow(resultKey) {
-  saveData('_SESSION_END', new Date().toISOString());
+  saveData('_SESSION_END', kstStamp());
   document.getElementById('abBanner').classList.remove('show');
   document.getElementById('qWrap').innerHTML = '';
   document.getElementById('nav').style.display = 'none';
@@ -1136,7 +1140,7 @@ function toggleFeed() {
   const open = f.classList.toggle('open');
   if (c) c.classList.toggle('open', open);
   if (s) s.textContent = open ? '접기' : '실제 참여자 후기 3개 보기';
-  if (open && !f.dataset.viewed) { f.dataset.viewed = '1'; saveData('_CONTENT_VIEW', new Date().toISOString()); }
+  if (open && !f.dataset.viewed) { f.dataset.viewed = '1'; saveData('_CONTENT_VIEW', kstStamp()); }
 }
 
 function toggleMore(bodyId, btnId) {
@@ -1194,6 +1198,13 @@ function keywordClassify(t) {
   }
 }
 
+// KST(UTC+9) 'YYYY-MM-DD HH:mm:ss' — 이벤트 타임스탬프용 (GS '한국 시간' 컬럼과 동일 포맷)
+function kstStamp() {
+  const d = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const z = n => String(n).padStart(2, '0');
+  return `${d.getUTCFullYear()}-${z(d.getUTCMonth() + 1)}-${z(d.getUTCDate())} ${z(d.getUTCHours())}:${z(d.getUTCMinutes())}:${z(d.getUTCSeconds())}`;
+}
+
 // ═══════════ 저장 (fire-and-forget) ═══════════
 function saveData(qid, answer, etcText) {
   if (!APPS_SCRIPT_URL) return;
@@ -1224,7 +1235,7 @@ document.addEventListener('keydown', e => {
 (function init() {
   if (previewMode) document.getElementById('verToggle').style.display = 'flex';
   const kb = document.getElementById('kakao-talk-channel-add-button');
-  if (kb) kb.addEventListener('click', () => saveData('_CHANNEL_ADD', new Date().toISOString()));
+  if (kb) kb.addEventListener('click', () => saveData('_CHANNEL_ADD', kstStamp()));
   loadVersion(resolveVersion());
 })();
 </script>
