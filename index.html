@@ -167,6 +167,22 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFo
 .bn-name{color:#E8810C;font-weight:800;white-space:nowrap}
 .ing-dots::after{content:'';animation:ingdots 1.4s steps(1,end) infinite}
 @keyframes ingdots{0%{content:''}25%{content:'.'}50%{content:'..'}75%,100%{content:'...'}}
+/* 미지급 리워드 확인 게이트 */
+.gate-card{text-align:center;padding:56px 26px}
+.gate-icon{font-size:50px;display:block;margin-bottom:22px;animation:gatePulse 1.2s ease-in-out infinite}
+@keyframes gatePulse{0%,100%{transform:scale(1);opacity:.82}50%{transform:scale(1.12);opacity:1}}
+.gate-title{font-size:18px;font-weight:800;line-height:1.6;letter-spacing:-.03em;margin-bottom:40px;word-break:keep-all;color:var(--brown)}
+.gate-checks{display:flex;flex-direction:column;gap:13px;text-align:left;max-width:330px;margin:0 auto}
+.gate-checks-result{margin-bottom:24px}
+.gate-check{display:flex;align-items:center;gap:12px;padding:15px 16px;border-radius:var(--rs);background:var(--brown-03);font-size:13.5px;color:var(--brown-60);font-weight:500;line-height:1.5;transition:all .3s ease;word-break:keep-all}
+.gate-check.done{color:var(--brown-80)}
+.gate-check.fail{background:var(--error-bg);color:var(--error);font-weight:700;border:1px solid rgba(229,57,53,.22)}
+.gate-check-ic{flex-shrink:0;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;box-sizing:border-box}
+.gate-check-ic.spin{border:2px solid var(--yellow-25);border-top-color:var(--yellow);animation:spin .7s linear infinite}
+.gate-check-ic.ok{background:#1f7a4d;color:#fff}
+.gate-check-ic.x{background:var(--error);color:#fff}
+.gate-btn{width:100%;padding:18px;font-size:16px;margin-top:8px;border-radius:var(--rs);background:var(--brown);color:#fff;border:none;cursor:pointer;font-family:inherit;font-weight:700}
+.gate-btn:active{transform:scale(.98)}
 </style>
 </head>
 <body>
@@ -180,6 +196,7 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFo
 </div>
 <div class="wrap">
   <div class="step" id="step-intro"></div>
+  <div class="step" id="step-gate"><div class="card gate-card" id="gateCard"></div></div>
   <div id="qWrap"></div>
   <div class="step" id="step-loading"><div class="card loading-card">
     <div class="loading-spinner"></div>
@@ -233,15 +250,15 @@ function resolveVersion() {
 // ═══════════ 결과(솔루션) 정의 — 제출 후 로딩→결과 화면에 표시 (미시작 a/b) ═══════════
 const RESULTS = {
   'R-generic': { noBadge:true, icon:'🙌', title:'소중한 답변 감사해요!', html:`<div class="info-block">남겨주신 내용을 바탕으로 {{nickname}}님께 도움이 될 방법을 찾아볼게요.</div>` },
-  'R-decline': { icon:'🙌', title:'언제든 다시 찾아주세요!', html:`<div class="info-block">지금은 받지 않으셔도 괜찮아요. 그래도 영수증 쿠폰을 손님께 꾸준히 나눠주시면 성과가 생길 수 있어요. 도움이 필요하시면 언제든 알려주세요!</div>` },
+  'R-decline': { noBadge:true, icon:'🙌', title:'답변해주셔서 감사해요!', html:`<div class="info-block">소중한 답변 감사합니다. 추가로 문의하실 내용이 있으시면 <strong>패스오더 고객센터</strong> 또는 카카오톡 <strong>'패스오더 알바 지원팀'</strong> 채널에 <strong>매장명과 전화번호</strong>를 남겨 문의해주시면, 확인 후 답변드릴게요.</div>` },
   'R-remind-print': { icon:'⏰', title:'출력 리마인드를 보내드릴게요!', html:`<div class="info-block">선택하신 날짜·시간에 맞춰 <strong>"오늘 출근하면 영수증 쿠폰 출력하기"</strong> 리마인드 메시지를 보내드릴게요. 까먹지 않게 도와드릴게요!</div>` },
   'R-remind-bulk': { icon:'⏰', title:'미리 많이 뽑는 걸 리마인드할게요!', html:`<div class="tip-box"><div class="tip-head">💡 이렇게 해보세요!</div>매번 1매씩 출력하는 게 아니라, 미리 <strong>30~50매</strong>를 뽑아두고 손님에게 나눠주시면 훨씬 편해요!</div><div class="info-block">선택하신 날짜에 <strong>'출근하면 영수증 쿠폰 30~50매 미리 뽑아두기'</strong>를 리마인드해드릴게요.</div>` },
   'R-remind-distribute': { icon:'⏰', title:'나눠주기 리마인드를 보내드릴게요!', html:`<div class="info-block">선택하신 날짜·시간에 맞춰 <strong>"오늘 출근하면 손님에게 영수증 쿠폰 나눠주기"</strong> 리마인드를 보내드릴게요!</div>` },
   'R-owner': { noBadge:true, icon:'🙌', title:'알려주셔서 감사해요!', html:`<div class="info-block">남겨주신 내용은 <strong>패스오더 내부에서만 확인</strong>하니 안심하셔도 돼요. 사장님께 안내드릴 때 잘 참고할게요.</div>` },
-  'R-noconv-deferred': { icon:'🔔', title:`{{nickname}}님은 손님의<br>카카오 인증까지만 도와주세요!`, html:`<div class="info-block">손님이 쿠폰을 받은 뒤,<br><br><strong>① QR 인식</strong> 또는 <strong>문자로 번호 보내기</strong><br><strong>② 들어간 링크에서 '카카오 인증'</strong><br>여기까지만 해주시면 돼요!<br><br>그다음부터는 패스오더가<br>해당 손님에게 쿠폰 사용 리마인드 메시지를<br>계속 보내서 {{nickname}}님이 추가 시급을<br>얻을 수 있도록 지원하고 있어요.<br><br>이후 성과가 나도록<br>패스오더가 적극적으로 도와드리고 있어요!</div>` },
+  'R-noconv-deferred': { icon:'🔔', title:`손님이 '미리 받아두기'를<br>누르도록만 도와주세요!`, html:`<div class="info-block" style="text-align:left">손님이 패스오더로 첫 주문을 하기까지는 이런 순서예요.<br><br>① 영수증 쿠폰 받기<br>② 영수증 쿠폰의 QR코드 인식 (또는 문자로 코드 받기)<br><strong style="color:#E8810C;background:var(--yellow-15);padding:3px 7px;border-radius:6px;display:inline-block;margin:4px 0">③ 링크에서 '아메리카노 100원 쿠폰 미리 받아두기' 클릭</strong><br>④ 패스오더 앱 설치·가입<br>⑤ 앱에서 참여 매장 페이지로 진입<br>⑥ 아메리카노 100원 메뉴 주문<br>⑦ 약 3~4일 뒤 참여자 리워드 지급</div><div class="tip-box"><div class="tip-head">💡 {{nickname}}님은 여기까지만!</div>손님이 <strong>③번 '미리 받아두기'까지</strong>만 하도록 도와주시면 돼요. 그 뒤(앱 설치·주문)는 손님이 직접 진행하고, 주문이 완료되면 약 3~4일 뒤 {{nickname}}님께 추가 시급이 지급돼요!</div>` },
   'R-noconv-already': { icon:'🔁', title:'일단 나눠주시는 게 좋아요!', html:`<div class="info-block">꼭 받은 분이 직접 쓰셔야 하는 건 아니에요. 받고 나서 <strong>패스오더를 안 쓰는 다른 분께 양도</strong>해서 사용하셔도 돼요.<br><br>이미 패스오더를 쓰시는 분은 편리함을 잘 아셔서 <strong>주변에 입소문도 잘 내주실</strong> 확률이 높아요. 그러니 일단 나눠주세요!</div>` },
   'R-giveall': { icon:'🎯', title:'물어보지 말고 일단 나눠줘보세요!', html:`<div class="info-block">손님이 패스오더 첫 주문 대상자인지 물어보며 나눠주면 시간도 오래 걸리고 번거로워요. 대신 <strong>방문하는 모든 손님에게 일단 나눠주시는 건</strong> 어떨까요?<br><br>바빠서 물어보지도 못하고 못 나눠준 손님 중에 우리 매장 첫 주문 손님이 있을지도 몰라요!</div>` },
-  'R-paper': { icon:'📮', title:'종이 쿠폰을 보내드릴게요!', html:`<div class="info-block">입력해주신 주소로 종이 쿠폰을 보내드릴게요. 받으신 후 손님께 나눠주시기만 하면 돼요!</div>` },
+  'R-paper': { icon:'📮', title:'종이 쿠폰을 보내드릴게요!', html:`<div class="info-block">입력해주신 주소로 <strong>영업일 3~4일 내</strong>에 종이 쿠폰을 보내드릴게요. 받으신 후에는 영수증 쿠폰과 동일하게 손님분들께 나눠주시기만 하면 돼요!</div>` },
   'R-print-how': { icon:'🖨️', title:`영수증 쿠폰 출력 방법을<br>알려드릴게요!`, html:`<div class="info-block"><strong>① 매장 POS의 패스오더 점주용 프로그램 켜기</strong><br><strong>② [이벤트 관리] > [시급 2배 챌린지] 탭 진입</strong><br><strong>③ {{nickname}}님 참여 카드에서 '출력' 버튼 클릭하기</strong><br><br>출력한 쿠폰을 손님께 나눠주시면<br>추가 시급이 쌓이기 시작해요!</div><div class="info-block">자세한 출력 방법은 카카오톡 <strong>'패스오더 알바 지원팀'</strong> 채널에서 안내받으실 수 있어요.</div>` },
   'R-a4': { icon:'🖼️', title:'개별 QR코드가 있는<br>A4 홍보물을 보내드릴게요!', html:`<div class="info-block">영업일 기준 <strong>2~3일 내</strong>에 {{nickname}}님만을 위한 개별 QR코드가 있는 A4 홍보물 이미지를 <strong>문자 메시지(이미지 링크)</strong>로 보내드릴게요. 문자 받으신 후 다운받아 인쇄해서 매장에 붙여 사용하시면 됩니다!</div>` },
   'R-format-qr': { icon:'🧾', title:'QR코드 형태로 도와드릴게요!', html:`<div class="info-block">선택하신 <strong>QR코드</strong> 형태로 출력되도록 도와드릴게요.</div><div class="info-warn">※ QR코드는 매장 프린터 상태에 따라 출력이 안 될 수 있어요. 바꾸신 뒤 꼭 테스트해보시고, 이상하면 바로 고객센터로 알려주시면 다시 바꿔드릴게요.</div>` },
@@ -346,21 +363,12 @@ const SHARED = {
     qid:'나눠준수량', type:'radio',
     text:'손님에게 영수증 쿠폰을 몇 장 정도 나눠주신 것 같으세요?',
     options:[
-      { label:'1~5장', next:'WHY' },
-      { label:'6~10장', next:'WHY' },
-      { label:'11~20장', next:'WHY' },
-      { label:'21~30장', next:'WHY' },
-      { label:'30장 이상', next:'WHY' },
-      { label:'기타', next:'WHY' }
-    ]
-  },
-  'WHY': {
-    qid:'전달후실패유형', type:'radio',
-    text:'나눠줬음에도 추가 시급을 받지 못한 이유가 무엇이라고 생각하세요?',
-    options:[
-      { label:'나눠줬지만 손님이 받기를 거절했어요', next:'FN-reject' },
-      { label:'나눠줬지만 손님이 받고 나서 참여하지 않은 것 같아요', next:'FN-noconvert' },
-      { label:'기타', next:'CLASSIFY' }
+      { label:'1~5장', next:'FN-noconvert' },
+      { label:'6~10장', next:'FN-noconvert' },
+      { label:'11~20장', next:'FN-noconvert' },
+      { label:'21~30장', next:'FN-noconvert' },
+      { label:'30장 이상', next:'FN-noconvert' },
+      { label:'기타', next:'FN-noconvert' }
     ]
   }
 };
@@ -373,7 +381,7 @@ const FUNNEL = {
     text:'구체적으로 어떤 상황에 가장 가까우세요?',
     options:[
       { label:'출력은 했지만 손님에게 나눠주지는 않았어요', next:'FN-distribute' },
-      { label:'나눠줬지만 손님이 받지 않은 것 같아요', next:'QTY' },
+      { label:'나눠줬지만 손님이 참여하지 않은 것 같아요', next:'QTY' },
       { label:'기타', next:'CLASSIFY' }
     ]
   },
@@ -574,7 +582,7 @@ const SURVEYS = {
         { label:'영수증 쿠폰을 출력한 적이 없어요', next:'OUT-never' },
         { label:'영수증 쿠폰 출력에 문제가 있어요 (실패·오류 등)', next:'OUT-fail' },
         { label:'영수증 쿠폰을 출력은 하고 손님에게 나눠주지 않았어요', next:'FN-distribute' },
-        { label:'영수증 쿠폰을 출력하고 손님에게 나눠줬지만, 손님이 받지 않은 것 같아요', next:'QTY' },
+        { label:'영수증 쿠폰을 출력하고 손님에게 나눠줬지만, 손님이 참여하지 않은 것 같아요', next:'QTY' },
         { label:'더 이상 이 매장에서 근무하지 않아요', next:'OS-Q1' },
         { label:'기타', next:'CLASSIFY' }
       ]},
@@ -599,20 +607,23 @@ function loadVersion(v) {
   SURVEY = SURVEYS[version]; PAGES = SURVEY.pages;
   answers = {}; history = [SURVEY.start]; currentPageId = SURVEY.start; needsCS = false;
   document.getElementById('step-end').classList.remove('active');
+  document.getElementById('step-gate').classList.remove('active');
   document.getElementById('cs-notice').classList.remove('show');
   document.getElementById('qWrap').innerHTML = '';
   document.getElementById('step-intro').classList.remove('active');
   document.getElementById('step-loading').classList.remove('active');
   document.querySelectorAll('.vt-btn').forEach(b => b.classList.toggle('active', b.dataset.v === version));
   const ab = document.getElementById('abBanner');
-  if (version === 'a' || version === 'b') { ab.querySelector('.ab-banner-inner').innerHTML = fill('<span class="bn-name">{{nickname}}</span>님이 추가 시급을 받을 수 있도록 개별 맞춤 솔루션을 찾는 중이에요<span class="ing-dots"></span>'); ab.classList.add('show'); }
-  else ab.classList.remove('show');
+  ab.classList.remove('show'); // 게이트 진행 중에는 숨김 → 설문 시작 시 노출
+  if (version === 'a' || version === 'b') ab.querySelector('.ab-banner-inner').innerHTML = fill('<span class="bn-name">{{nickname}}</span>님이 추가 시급을 받을 수 있도록 개별 맞춤 솔루션을 찾는 중이에요<span class="ing-dots"></span>');
   saveData('_PAGE_VIEW', location.href);
   if (SURVEY.intro) {
     renderIntro();
     document.getElementById('step-intro').classList.add('active');
     document.getElementById('nav').style.display = 'none';
     scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (version === 'a' || version === 'b') {
+    showGate();
   } else {
     document.getElementById('nav').style.display = 'block';
     saveData('_SESSION_START', new Date().toISOString());
@@ -622,8 +633,57 @@ function loadVersion(v) {
 
 (function init() {
   if (previewMode) document.getElementById('verToggle').style.display = 'flex';
+  const kb = document.getElementById('kakao-talk-channel-add-button');
+  if (kb) kb.addEventListener('click', () => saveData('_CHANNEL_ADD', new Date().toISOString()));
   loadVersion(resolveVersion());
 })();
+
+// ═══════════ 미지급 리워드 확인 게이트 (미시작 a/b) ═══════════
+const GATE_CHECKS = ['시급 2배 챌린지 참여자인지 확인', '참여 코드를 등록했는지 확인', '영수증 쿠폰을 출력했는지 확인', '영수증 쿠폰으로 손님이 참여했는지 확인'];
+const GATE_DONE = ['시급 2배 챌린지 참여자', '참여 코드 등록', '영수증 쿠폰 출력', '영수증 쿠폰으로 손님 참여'];
+const GATE_NUM = ['①', '②', '③', '④'];
+
+function showGate() {
+  document.getElementById('nav').style.display = 'none';
+  document.getElementById('prog').style.width = '0%';
+  const checksHtml = GATE_CHECKS.map((c, i) =>
+    `<div class="gate-check" id="gc${i}"><span class="gate-check-ic spin"></span><span class="gate-check-tx">${GATE_NUM[i]} ${c} 중<span class="ing-dots"></span></span></div>`
+  ).join('');
+  document.getElementById('gateCard').innerHTML =
+    `<span class="gate-icon">🔍</span><div class="gate-title">${fill('{{nickname}}님의 미지급 리워드를<br>확인하고 있어요')}</div><div class="gate-checks">${checksHtml}</div>`;
+  document.getElementById('step-gate').classList.add('active');
+  scrollTo({ top: 0, behavior: 'smooth' });
+  [0, 1, 2].forEach((i, idx) => {
+    setTimeout(() => {
+      const gc = document.getElementById('gc' + i); if (!gc) return;
+      gc.classList.add('done');
+      gc.querySelector('.gate-check-ic').className = 'gate-check-ic ok';
+      gc.querySelector('.gate-check-ic').textContent = '✓';
+      gc.querySelector('.gate-check-tx').innerHTML = GATE_NUM[i] + ' ' + GATE_DONE[i] + ' 확인 완료';
+    }, 1000 + idx * 1100);
+  });
+  setTimeout(showGateResult, 6000);
+}
+
+function showGateResult() {
+  const checksHtml = GATE_CHECKS.map((c, i) => {
+    const fail = (i === 3);
+    return `<div class="gate-check ${fail ? 'fail' : 'done'}"><span class="gate-check-ic ${fail ? 'x' : 'ok'}">${fail ? '✕' : '✓'}</span><span class="gate-check-tx">${GATE_NUM[i]} ${GATE_DONE[i]}${fail ? ' — 확인되지 않음' : ' 확인 완료'}</span></div>`;
+  }).join('');
+  document.getElementById('gateCard').innerHTML =
+    `<div class="result-head"><span class="result-icon">🧾</span></div><div class="result-title">${fill('{{nickname}}님은 아직<br>미지급된 리워드가 없어요')}</div><div class="gate-checks gate-checks-result">${checksHtml}</div><div class="info-block" style="text-align:center">미지급 리워드를 받으려면 <strong>④ 영수증 쿠폰으로 손님이 참여</strong> 항목에 대한 ${fill('{{nickname}}')}님의 활동 점검이 필요해요.<br><br>아래에서 바로 점검하고 {{nickname}}님 맞춤 솔루션을 확인해보세요!</div><button class="gate-btn" onclick="startGateSurvey()">활동 점검하기 →</button>`.replace(/\{\{nickname\}\}/g, nickname || '');
+  scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startGateSurvey() {
+  document.getElementById('step-gate').classList.remove('active');
+  document.getElementById('abBanner').classList.add('show');
+  document.getElementById('nav').style.display = 'block';
+  history = [SURVEY.start]; currentPageId = SURVEY.start;
+  saveData('_GATE_START', new Date().toISOString());
+  saveData('_SESSION_START', new Date().toISOString());
+  renderPage(currentPageId);
+}
 
 function renderIntro() {
   const c = SURVEY.intro;
@@ -915,6 +975,7 @@ function showEnd() {
 // 미시작(a/b): 제출 → 로딩 → 결과(솔루션) 화면
 function finishFlow(resultKey) {
   saveData('_SESSION_END', new Date().toISOString());
+  document.getElementById('abBanner').classList.remove('show');
   document.getElementById('qWrap').innerHTML = '';
   document.getElementById('nav').style.display = 'none';
   document.getElementById('prog').style.width = '100%';
@@ -933,14 +994,14 @@ function finishFlow(resultKey) {
 
 // 거부(안 받음) 시 보여줄 맞춤 설득 카피
 const DECLINE = {
-  cost: { icon:'💡', title:`영수증 용지 값 부담은<br>생각보다 작을 수 있어요`, html:`<div class="info-block">영수증 쿠폰 1장을 출력하는 비용은 매우 적은 수준이에요.<br><br>반면 손님이 쿠폰으로 첫 주문을 1번만 해도 <strong>{{nickname}}님께는 1,500원의 추가 시급</strong>이 적립돼요.<br><br>쿠폰 여러 장을 출력하더라도 손님 1명만 주문하면 충분히 더 큰 가치가 생기는 구조예요.<br><br>부담되신다면 다음 근무 때 <strong>하루 5장만 먼저 출력해서</strong> 나눠보시는 걸 추천드려요.</div>` },
-  owner: { icon:'🤝', title:`사장님 눈치가 보이셨다면<br>이렇게 생각해보셔도 좋아요`, html:`<div class="info-block">영수증 쿠폰은 단순히 종이를 쓰는 활동이 아니라, <strong>매장 신규 고객을 늘리기 위한 활동</strong>이에요.<br><br>손님이 쿠폰을 통해 첫 주문을 하면 {{nickname}}님은 추가 시급을 받고, 매장은 새로운 고객을 얻을 수 있어요.<br><br>사장님께서 직접 출력하지 말라고 하신 상황이 아니라면 너무 부담 갖지 않으셔도 괜찮아요.<br><br>처음에는 <strong>소량만 출력해서</strong> 자연스럽게 시작해보세요.</div>` },
-  shape: { icon:'🧾', title:`영수증이라 부담스러워 보인다면<br>말을 짧게 바꿔보세요`, html:`<div class="info-block">손님에게 길게 설명하려고 하면 오히려 부담스러워질 수 있어요.<br><br>다음에는 쿠폰을 건네면서 딱 한 문장만 말해보세요.<br><br><strong>"첫 주문 1,000원 할인 쿠폰이에요."</strong><br><br>영수증이라고 설명하기보다, 손님이 바로 이해할 수 있는 혜택만 짧게 말하는 게 좋아요.</div>` },
-  benefit: { icon:'🎯', title:`혜택이 잘 안 와닿았다면<br>첫 문장을 바꿔보세요`, html:`<div class="info-block">손님은 쿠폰의 구조보다 <strong>내가 얼마를 아끼는지</strong>를 먼저 궁금해해요.<br><br>그래서 "패스오더 이벤트예요"보다<br><br><strong>"첫 주문하면 1,000원 할인돼요."</strong><br><br>처럼 바로 혜택을 말하는 게 좋아요.<br><br>짧게 전달하면 바쁜 손님도 부담 없이 받아갈 가능성이 높아져요.</div>` },
-  busy: { icon:'⚡', title:`바쁜 손님에게는<br>설명보다 한마디가 좋아요`, html:`<div class="info-block">바쁜 시간대에는 자세히 설명하려고 하면 손님도 부담스러워할 수 있어요.<br><br>이럴 때는 계산 후 쿠폰을 건네며<br><br><strong>"첫 주문 할인 쿠폰 같이 드릴게요."</strong><br><br>정도로만 말해도 충분해요.<br><br>모든 손님을 설득하려고 하기보다, 일단 자연스럽게 전달하는 걸 목표로 해보세요.</div>` },
-  pos: { icon:'🖨️', title:`출력이 어려운 매장이라면<br>다른 방식도 같이 확인해볼게요`, html:`<div class="info-block">매장 POS나 프린터 환경 때문에 영수증 출력이 어려울 수 있어요.<br><br>이 경우 패스오더 알바지원팀에서 매장 상황을 확인해보고, 가능한 참여 방법이 있는지 살펴볼게요.<br><br>추가로 도움이 필요하시면 아래 고객센터로 문의해주세요.</div>` },
-  error: { icon:'🛠️', title:`출력이 이상하게 됐다면<br>프린터 상태 확인이 필요해요`, html:`<div class="info-block">QR코드가 깨지거나 글자가 밀려 나오면 손님이 참여하기 어려울 수 있어요.<br><br>프린터 용지 정렬, 출력 농도, POS 프로그램 상태를 한 번 확인해보는 게 좋아요.<br><br>계속 이상하게 출력된다면 패스오더 알바지원팀으로 문의해주세요. 확인 후 도와드릴게요.</div>` },
-  give: { icon:'🙌', title:`직접 건네기 어색하다면<br>짧게만 말해도 괜찮아요`, html:`<div class="info-block">손님에게 길게 설명하려고 하면 더 어색해질 수 있어요.<br><br>처음에는 계산 후 쿠폰을 건네며<br><br><strong>"첫 주문 할인 쿠폰 같이 드릴게요."</strong><br><br>이 한마디만 해도 충분해요.<br><br>익숙해질 때까지는 하루 3~5명에게만 먼저 시도해보세요.</div>` }
+  cost: { icon:'💡', title:`영수증 용지 비용보다<br>매장이 얻는 가치가 더 커요!`, html:`<div class="info-block">영수증 쿠폰 1장을 출력하는 비용은 추후에 매장이 받는 이득에 비하면 매우 작을 거에요.<br><br>쿠폰 여러 장을 출력하더라도 손님 1명만 주문하면 충분히 더 큰 가치가 생길 수 있어요.<br><br>부담되신다면 다음 근무 때는 <strong>하루 5장만 먼저 출력해서</strong> 나눠보시는 건 어떨까요?</div>` },
+  owner: { icon:'🤝', title:`사장님 눈치<br>볼 필요는 없어요!`, html:`<div class="info-block">영수증 쿠폰은 단순히 영수증 용지를 쓰는 활동이 아니라, <strong>매장 신규 고객을 늘리기 위한 활동</strong>이에요.<br><br>손님이 쿠폰을 통해 첫 주문을 하면 {{nickname}}님은 추가 시급을 받고, 매장은 새로운 고객을 얻을 수 있어요.<br><br>사장님께서 직접 출력하지 말라고 하신 상황이 아니라면 너무 부담 갖지 않으셔도 괜찮아요.<br><br>처음에는 <strong>1~5장씩만</strong> 출력해서 가볍게 시작해보는 건 어떨까요?</div>` },
+  shape: { icon:'🧾', title:`영수증이라 부담스러워 한다면,<br>쿠폰임을 어필해보세요!`, html:`<div class="info-block">손님은 영수증을 받으면, 버리는 등의 추가 액션이 필요해서 꺼리는 걸 거에요!<br><br>그렇다면, 이거는 주문하고 받는 영수증이 아니라, 받고 다음 번에 매장에 방문할 때 쓰면 <strong>100원에 아메리카노</strong>를 먹을 수 있는 '쿠폰'임을 강조해서 전달해보는 건 어떨까요?</div>` },
+  benefit: { icon:'🎯', title:`손님이 혜택이 무엇인지<br>확실히 알 수 있게 해보세요!`, html:`<div class="info-block">손님은 쿠폰으로 받는 직접적인 혜택을 가장 궁금해할거에요.<br><br>그래서 "패스오더에서 하는 이벤트예요"보다<br><br><strong>"패스오더로 저희 매장 첫 주문하시면 100원에 아메리카노 주문할 수 있어요"</strong><br><br>처럼 바로 혜택을 말하는 게 좋아요.<br><br>짧게 전달하면 바쁜 손님도 부담 없이 받아갈 가능성이 높아져요.</div>` },
+  busy: { icon:'⚡', title:`바쁜 손님에게는<br>컵홀더에 끼워서 전달해보세요`, html:`<div class="info-block">바쁜 시간대에는 자세히 설명하려고 하면 손님도 부담스러워할 수 있어요.<br><br>이럴 때는 음료 픽업할 때 <strong>컵홀더 사이에 영수증 쿠폰을 끼워두고</strong><br><br>"패스오더로 저희 매장 첫 주문하시면 100원에 아메리카노 주문할 수 있어요"<br><br>정도로만 말해도 충분해요.</div>` },
+  pos: { icon:'🖨️', title:`출력이 어려운 매장이라면<br>다른 방식도 같이 확인해볼게요`, html:`<div class="info-block">매장 POS나 프린터 환경 때문에 영수증 출력이 어려울 수 있어요.<br><br>이 경우 <strong>패스오더 고객센터</strong>로 문의를 해주시면 매장 상황을 확인해보고, 가능한 참여 방법이 있는지 살펴볼게요.</div>` },
+  error: { icon:'🛠️', title:`출력이 이상하게 됐다면<br>프린터 상태 확인이 필요해요`, html:`<div class="info-block">QR코드가 깨지거나 글자가 밀려 나오면 손님이 참여하기 어려울 수 있어요.<br><br>프린터 용지 정렬, 출력 농도, POS 프로그램 상태를 한 번 확인해보는 게 좋아요.<br><br>계속 이상하게 출력된다면 <strong>패스오더 고객센터</strong>로 문의해주세요. 확인 후 도와드릴게요.</div>` },
+  give: { icon:'🙌', title:`직접 건네기 어색하다면<br>컵홀더에 끼워보세요`, html:`<div class="info-block">직접 건네기가 어색하다면, 음료 픽업 시에 <strong>컵홀더 사이에 영수증 쿠폰을 끼워넣어서</strong> 전달해보세요!<br><br>모든 음료에 끼워넣어서 전달하다보면, 말을 하지 않고도 쑥쑥 쌓이는 추가 시급을 볼 수 있을거에요!</div>` }
 };
 
 // 거부(안 받음) 시: 직전에 고른 이유를 근거로 맞춤 설득 결과 생성
@@ -956,7 +1017,7 @@ function declineResult() {
   if (has('한눈', '와닿', '할인 혜택', '잘 모')) return DECLINE.benefit;
   if (has('바쁘', '관심')) return DECLINE.busy;
   if (has('부담', '어색')) return DECLINE.give;
-  return { noBadge:true, icon:'🙌', title:'언제든 다시 찾아주세요!', html:RESULTS['R-decline'].html };
+  return { noBadge:true, icon:'🙌', title:'답변해주셔서 감사해요!', html:`<div class="info-block">소중한 답변 감사합니다. 추가로 문의하실 내용이 있으시면 <strong>패스오더 고객센터</strong> 또는 카카오톡 <strong>'패스오더 알바 지원팀'</strong> 채널에 <strong>매장명과 전화번호</strong>를 남겨 문의해주시면, 확인 후 답변드릴게요.</div>` };
 }
 
 function renderResult(key) {
