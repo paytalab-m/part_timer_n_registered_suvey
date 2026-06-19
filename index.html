@@ -676,12 +676,7 @@ function loadVersion(v) {
   }
 }
 
-(function init() {
-  if (previewMode) document.getElementById('verToggle').style.display = 'flex';
-  const kb = document.getElementById('kakao-talk-channel-add-button');
-  if (kb) kb.addEventListener('click', () => saveData('_CHANNEL_ADD', new Date().toISOString()));
-  loadVersion(resolveVersion());
-})();
+// init()은 스크립트 맨 끝에서 호출 (GATE_CHECKS 등 const 초기화 이후 실행 — TDZ 방지)
 
 // ═══════════ 미지급 리워드 확인 게이트 (미시작 a/b) ═══════════
 const GATE_CHECKS = ['시급 2배 챌린지 참여자인지 확인', '참여 코드를 등록했는지 확인', '영수증 쿠폰을 출력했는지 확인', '영수증 쿠폰으로 손님이 참여했는지 확인'];
@@ -1212,6 +1207,13 @@ document.addEventListener('keydown', e => {
     if (document.getElementById('nav').style.display !== 'none') { e.preventDefault(); goNext(); }
   }
 });
+// ═══════════ 초기화 (모든 const·함수 정의 이후 실행) ═══════════
+(function init() {
+  if (previewMode) document.getElementById('verToggle').style.display = 'flex';
+  const kb = document.getElementById('kakao-talk-channel-add-button');
+  if (kb) kb.addEventListener('click', () => saveData('_CHANNEL_ADD', new Date().toISOString()));
+  loadVersion(resolveVersion());
+})();
 </script>
 
 <!-- 카카오톡 채널 SDK -->
