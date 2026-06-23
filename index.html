@@ -238,6 +238,7 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFo
   <button class="vt-btn" data-v="u" onclick="loadVersion('u')">미등록</button>
   <button class="vt-btn active" data-v="a" onclick="loadVersion('a')">미시작A</button>
   <button class="vt-btn" data-v="b" onclick="loadVersion('b')">미시작B</button>
+  <button class="vt-btn" data-v="i" onclick="loadVersion('i')">미활동</button>
 </div>
 <div class="wrap">
   <div class="step" id="step-intro"></div>
@@ -290,6 +291,7 @@ function resolveVersion() {
   // 채널 값에 버전 숫자 포함: 2→미시작A, 3→미시작B, 그 외(1·숫자 없음)→미등록(기본)
   if (channel.includes('2')) return 'a';
   if (channel.includes('3')) return 'b';
+  if (channel.includes('4')) return 'i';
   return 'u';
 }
 
@@ -399,8 +401,9 @@ const SHARED = {
     qid:'출력오류유형', type:'radio',
     text:'출력 시 어떤 문제가 있었나요?',
     options:[
-      { label:'영수증 출력이 되지 않는 POS기를 쓰고 있어요', next:'PROMO' },
+      { label:'영수증 출력이 되지 않는 POS기를 쓰고 있어요', omitFor:['i'], next:'PROMO' },
       { label:'출력은 했는데 이상하게 출력됐어요 (QR코드 오류, 글자 밀림 등)', next:'OUT-glitch' },
+      { label:'최근 사장님이 영수증 쿠폰 출력을 막으셨어요', onlyFor:['i'], next:'FN-dist-owner' },
       { label:'기타', next:'PROMO' }
     ]
   },
@@ -448,8 +451,9 @@ const FUNNEL = {
   'FN-distribute': {
     qid:'안나눔이유', type:'radio',
     text:'출력은 하셨는데, 어떤 점 때문에 손님에게 나눠주지 못하셨나요?',
+    textFor:{ i:'출력은 하셨는데, 어떤 점 때문에 최근에는 손님에게 나눠주지 못하셨나요?' },
     options:[
-      { label:'손님에게 직접 건네는 게 부담스럽고 어색해서', next:'A4_OFFER' },
+      { label:'손님에게 직접 건네는 게 부담스럽고 어색해서', omitFor:['i'], next:'A4_OFFER' },
       { label:'사장님 눈치가 보여서', next:'FN-dist-owner' },
       { label:'바쁘거나 깜빡해서 못 건넸어요', next:'FN-dist-remind' },
       { label:'기타', next:'R-generic' }
@@ -647,13 +651,29 @@ const SURVEYS = {
       ]},
       ...FUNNEL, ...SHARED
     }
+  },
+
+  // ── i: 미활동 (한 번 이상 성과를 냈으나 최근 2주+ 손님 참여 없음) ──
+  i: {
+    start: 'I-Q1',
+    pages: {
+      'I-Q1': { num:'Q1', qid:'Q1', type:'radio', text:'손님에게 영수증 쿠폰을 나눠주셨음에도, 최근 2주 이상 추가 시급을 받지 못한 이유가 무엇이라고 생각하시나요?', options:[
+        { label:'최근에 영수증 쿠폰 출력에 문제가 생겼어요 (실패, 오류, 그 외)', next:'OUT-fail' },
+        { label:'최근에는 영수증 쿠폰을 잘 나눠주지 못했어요', next:'FN-distribute' },
+        { label:'계속 나눠주고 있는데, 최근에는 손님이 참여하지 않는 것 같아요', next:'QTY' },
+        { label:'더 이상 이 매장에서 근무하지 않아요', next:'OS-Q1' },
+        { label:'기타', next:'CLASSIFY' }
+      ]},
+      ...FUNNEL, ...SHARED
+    }
   }
 };
 
 // 기타 분류 → 다음 페이지/결과 (a/b)
 const CATEGORY_MAP = {
   a: { '깜빡':'A-remind', '번거로움':'A-bulkprint', '안나눔':'FN-distribute', '거절':'FN-reject', '미참여':'FN-noconvert', '대상부족':'R-giveall', '영수증형태':'PAPER', '근무중단':'OS-Q1', '출력문제':'OUT-fail', '기타':'R-generic' },
-  b: { '안나눔':'FN-distribute', '거절':'FN-reject', '미참여':'FN-noconvert', '대상부족':'R-giveall', '영수증형태':'PAPER', '근무중단':'OS-Q1', '출력문제':'OUT-fail', '기타':'R-generic' }
+  b: { '안나눔':'FN-distribute', '거절':'FN-reject', '미참여':'FN-noconvert', '대상부족':'R-giveall', '영수증형태':'PAPER', '근무중단':'OS-Q1', '출력문제':'OUT-fail', '기타':'R-generic' },
+  i: { '안나눔':'FN-distribute', '거절':'FN-reject', '미참여':'FN-noconvert', '대상부족':'R-giveall', '영수증형태':'PAPER', '근무중단':'OS-Q1', '출력문제':'OUT-fail', '기타':'R-generic' }
 };
 
 // ═══════════ 상태 ═══════════
@@ -662,7 +682,7 @@ let answers = {}, history = [], currentPageId = SURVEY.start, needsCS = false;
 
 // ═══════════ 버전 로드 ═══════════
 function loadVersion(v) {
-  version = (v === 'u' || v === 'b') ? v : 'a';
+  version = ['u', 'a', 'b', 'i'].includes(v) ? v : 'a';
   SURVEY = SURVEYS[version]; PAGES = SURVEY.pages;
   answers = {}; history = [SURVEY.start]; currentPageId = SURVEY.start; needsCS = false;
   document.getElementById('step-end').classList.remove('active');
@@ -674,14 +694,14 @@ function loadVersion(v) {
   document.querySelectorAll('.vt-btn').forEach(b => b.classList.toggle('active', b.dataset.v === version));
   const ab = document.getElementById('abBanner');
   ab.classList.remove('show'); // 게이트 진행 중에는 숨김 → 설문 시작 시 노출
-  if (version === 'a' || version === 'b') ab.querySelector('.ab-banner-inner').innerHTML = fill('<span class="bn-name">{{nickname}}</span>님이 추가 시급을 받을 수 있도록 개별 맞춤 솔루션을 찾는 중이에요<span class="ing-dots"></span>');
+  if (version === 'a' || version === 'b' || version === 'i') ab.querySelector('.ab-banner-inner').innerHTML = fill('<span class="bn-name">{{nickname}}</span>님이 추가 시급을 받을 수 있도록 개별 맞춤 솔루션을 찾는 중이에요<span class="ing-dots"></span>');
   saveData('_PAGE_VIEW', location.href);
   if (SURVEY.intro) {
     renderIntro();
     document.getElementById('step-intro').classList.add('active');
     document.getElementById('nav').style.display = 'none';
     scrollTo({ top: 0, behavior: 'smooth' });
-  } else if (version === 'a' || version === 'b') {
+  } else if (version === 'a' || version === 'b' || version === 'i') {
     showGate();
   } else {
     document.getElementById('nav').style.display = 'block';
@@ -690,44 +710,52 @@ function loadVersion(v) {
   }
 }
 
-// init()은 스크립트 맨 끝에서 호출 (GATE_CHECKS 등 const 초기화 이후 실행 — TDZ 방지)
+// init()은 스크립트 맨 끝에서 호출 (GATE_FAIL_IDX 등 const 초기화 이후 실행 — TDZ 방지)
 
 // ═══════════ 미지급 리워드 확인 게이트 (미시작 a/b) ═══════════
-const GATE_CHECKS = ['시급 2배 챌린지 참여자인지 확인', '참여 코드를 등록했는지 확인', '영수증 쿠폰을 출력했는지 확인', '영수증 쿠폰으로 손님이 참여했는지 확인'];
-const GATE_DONE = ['시급 2배 챌린지 참여자', '참여 코드 등록', '영수증 쿠폰 출력', '영수증 쿠폰으로 손님 참여'];
 const GATE_NUM = ['①', '②', '③', '④'];
 // 채널에 'no_print' 포함 시 ③(영수증 출력)·④(손님 참여) 모두 미확인, 아니면 ④만
 const GATE_FAIL_IDX = channel.includes('no_print') ? [2, 3] : [3];
+// 게이트 점검 항목 라벨 — 미활동(i)은 ④에 '최근 2주간' 표기 (한 번 성과 후 최근 미참여 케이스)
+function gateLabels() {
+  const recent = (version === 'i') ? '최근 2주간 ' : '';
+  return {
+    checks: ['시급 2배 챌린지 참여자인지 확인', '참여 코드를 등록했는지 확인', '영수증 쿠폰을 출력했는지 확인', recent + '영수증 쿠폰으로 손님이 참여했는지 확인'],
+    done: ['시급 2배 챌린지 참여자', '참여 코드 등록', '영수증 쿠폰 출력', recent + '영수증 쿠폰으로 손님 참여']
+  };
+}
 
 function showGate() {
   document.getElementById('nav').style.display = 'none';
   document.getElementById('prog').style.width = '0%';
-  const checksHtml = GATE_CHECKS.map((c, i) =>
+  const { checks, done } = gateLabels();
+  const checksHtml = checks.map((c, i) =>
     `<div class="gate-check" id="gc${i}"><span class="gate-check-ic spin"></span><span class="gate-check-tx">${GATE_NUM[i]} ${c} 중<span class="ing-dots"></span></span></div>`
   ).join('');
   document.getElementById('gateCard').innerHTML =
     `<span class="gate-icon">🔍</span><div class="gate-title">${fill('{{nickname}}님의 미지급 리워드를<br>확인하고 있어요')}</div><div class="gate-checks">${checksHtml}</div>`;
   document.getElementById('step-gate').classList.add('active');
   scrollTo({ top: 0, behavior: 'smooth' });
-  GATE_CHECKS.map((_, i) => i).filter(i => !GATE_FAIL_IDX.includes(i)).forEach((i, idx) => {
+  checks.map((_, i) => i).filter(i => !GATE_FAIL_IDX.includes(i)).forEach((i, idx) => {
     setTimeout(() => {
       const gc = document.getElementById('gc' + i); if (!gc) return;
       gc.classList.add('done');
       gc.querySelector('.gate-check-ic').className = 'gate-check-ic ok';
       gc.querySelector('.gate-check-ic').textContent = '✓';
-      gc.querySelector('.gate-check-tx').innerHTML = GATE_NUM[i] + ' ' + GATE_DONE[i] + ' 확인 완료';
+      gc.querySelector('.gate-check-tx').innerHTML = GATE_NUM[i] + ' ' + done[i] + ' 확인 완료';
     }, 1000 + idx * 1100);
   });
   setTimeout(showGateResult, 6000);
 }
 
 function showGateResult() {
-  const checksHtml = GATE_CHECKS.map((c, i) => {
+  const { done } = gateLabels();
+  const checksHtml = done.map((c, i) => {
     const fail = GATE_FAIL_IDX.includes(i);
-    return `<div class="gate-check ${fail ? 'fail' : 'done'}"><span class="gate-check-ic ${fail ? 'x' : 'ok'}">${fail ? '✕' : '✓'}</span><span class="gate-check-tx">${GATE_NUM[i]} ${GATE_DONE[i]}${fail ? ' — 확인되지 않음' : ' 확인 완료'}</span></div>`;
+    return `<div class="gate-check ${fail ? 'fail' : 'done'}"><span class="gate-check-ic ${fail ? 'x' : 'ok'}">${fail ? '✕' : '✓'}</span><span class="gate-check-tx">${GATE_NUM[i]} ${done[i]}${fail ? ' — 확인되지 않음' : ' 확인 완료'}</span></div>`;
   }).join('');
   document.getElementById('gateCard').innerHTML =
-    `<div class="result-title">${fill('{{nickname}}님은 아직<br>미지급된 리워드가 없어요')}</div><div class="gate-checks gate-checks-result">${checksHtml}</div><div class="info-block" style="text-align:center">미지급 리워드를 받으려면 <br><strong>${GATE_FAIL_IDX.map(i => GATE_NUM[i] + ' ' + GATE_DONE[i]).join(', ')}</strong> 항목에 대한 <br>${fill('{{nickname}}')}님의 활동 점검이 필요해요.<br><br>아래에서 바로 점검하고 {{nickname}}님 <br>맞춤 솔루션을 확인해보세요!</div><button class="gate-btn" onclick="startGateSurvey()">활동 점검하기 →</button>`.replace(/\{\{nickname\}\}/g, nickname || '');
+    `<div class="result-title">${fill('{{nickname}}님은 ' + (version === 'i' ? '현재' : '아직') + '<br>미지급된 리워드가 없어요')}</div><div class="gate-checks gate-checks-result">${checksHtml}</div><div class="info-block" style="text-align:center">미지급 리워드를 받으려면 <br><strong>${GATE_FAIL_IDX.map(i => GATE_NUM[i] + ' ' + done[i]).join(', ')}</strong> 항목에 대한 <br>${fill('{{nickname}}')}님의 활동 점검이 필요해요.<br><br>아래에서 바로 점검하고 {{nickname}}님 <br>맞춤 솔루션을 확인해보세요!</div><button class="gate-btn" onclick="startGateSurvey()">활동 점검하기 →</button>`.replace(/\{\{nickname\}\}/g, nickname || '');
   document.getElementById('gateCard').classList.add('gc-result');
   scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -774,7 +802,7 @@ function renderPage(pageId) {
   let h = `<div class="card">`;
   const qnum = (version === 'u') ? page.num : ('Q' + history.length);
   if (qnum) h += `<div class="q-num">${qnum}</div>`;
-  h += `<div class="q-text">${fill(page.text).replace(/\n/g, '<br>')}</div>`;
+  h += `<div class="q-text">${fill((page.textFor && page.textFor[version]) || page.text).replace(/\n/g, '<br>')}</div>`;
   if (page.hint) h += `<div class="q-hint">${fill(page.hint)}</div>`;
   h += `<div class="q-gap"></div>`;
   if (page.info) h += fill(page.info);
@@ -782,7 +810,7 @@ function renderPage(pageId) {
   if (page.type === 'radio') {
     if (page.info) h += `<div class="info-gap"></div>`;
     h += `<div class="opts">`;
-    page.options.forEach((o, i) => {
+    page.options.filter(o => !(o.omitFor && o.omitFor.includes(version)) && (!o.onlyFor || o.onlyFor.includes(version))).forEach((o, i) => {
       const isE = o.label === '기타';
       h += `<div class="opt"><input type="radio" name="${pageId}" id="${pageId}_${i}" value="${o.value || o.label}" data-next="${o.next}" ${isE ? 'data-etc="1"' : ''} onchange="onChg('${pageId}')">`;
       h += `<label class="opt-label" for="${pageId}_${i}"><span class="ind"></span><div class="opt-content"><div class="opt-main">${o.label}</div>`;
